@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Now - Lego Sight</title>
+    <!-- CSS ফাইল -->
+    <link rel="stylesheet" href="style.css">
+    <!-- আইকন লাইব্রেরি -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .live-header {
+            padding: 35px 25px 15px 25px;
+            text-align: center;
+        }
+        .live-header h1 {
+            font-size: 32px;
+            color: #ffffff;
+            margin-bottom: 8px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+        .live-header p {
+            color: #aaa;
+            font-size: 15px;
+        }
+
+        /* লাল লাইভ পালস ডট */
+        .live-pulse-dot {
+            width: 14px;
+            height: 14px;
+            background-color: #ff0000;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 12px #ff0000;
+            animation: livePulse 1.5s infinite;
+        }
+        @keyframes livePulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7); }
+            70% { transform: scale(1.15); box-shadow: 0 0 0 10px rgba(255, 0, 0, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
+        }
+
+        /* 🌟 নিখুঁত ১৬:৯ সাইজ গ্রিড (টিভি, পিসি ও মোবাইলে কখনোই লম্বাটে হবে না) 🌟 */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 22px;
+            padding: 20px 0;
+        }
+
+        /* বড় পিসি বা টিভির জন্য ৪ কলামে নিখুঁত ডিসপ্লে */
+        @media (min-width: 1400px) {
+            .video-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .video-card {
+            background-color: #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+            text-decoration: none;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #282828;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(255, 0, 0, 0.35);
+            border-color: #ff0000;
+        }
+
+        /* 🎬 ১৬:৯ সিনেমাটিক থাম্বনেইল বক্স 🎬 */
+        .thumbnail-box {
+            width: 100%;
+            aspect-ratio: 16 / 9; /* কোনো অবস্থাতেই ছবি চ্যাপ্টা বা লম্বাটে হবে না */
+            position: relative;
+            background-color: #000;
+            overflow: hidden;
+        }
+
+        .thumbnail-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* ছবির সাইজ নিজে থেকেই খাপে খাপে সুন্দরভাবে বসবে */
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .video-card:hover .thumbnail-box img {
+            transform: scale(1.05);
+        }
+
+        /* লাইভ ব্যাজ */
+        .live-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #ff0000;
+            color: #ffffff;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: bold;
+            border-radius: 4px;
+            box-shadow: 0 0 12px rgba(255, 0, 0, 0.8);
+            animation: pulse 1.5s infinite;
+        }
+
+        .video-info {
+            padding: 14px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .video-info h3 {
+            font-size: 16px;
+            color: #fff;
+            margin-bottom: 6px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .video-info p {
+            color: #888;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body data-page="live">
+
+    <!-- Header -->
+    <header class="navbar">
+        <div class="logo">
+            <!-- 🌟 ৩D লোগো 🌟 -->
+            <a href="index.html">
+                <img src="logo.png" alt="Lego Sight" class="site-logo-img" onerror="this.src='https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=100';">
+                <span class="logo-text">Lego <span>Sight</span></span>
+            </a>
+        </div>
+        
+        <!-- Navigation Links (Live Now লাল রঙে সিলেক্ট করা) -->
+        <nav class="nav-links" id="navLinks">
+            <a href="index.html">Home</a>
+            <a href="live.html" class="active-link" style="color: #ff0000;">Live Now</a>
+            <a href="sports.html">Sports</a>
+            <a href="about.html">About</a>
+        </nav>
+        
+        <div class="header-right">
+            <!-- Auth Section -->
+            <div id="authSection">
+                <button class="login-btn" id="headerLoginBtn">Login</button>
+                <div id="userProfile" class="profile-section hidden">
+                    <i class="fa-solid fa-circle-user profile-icon"></i>
+                    <span id="userNameDisplay">User</span>
+                    <button id="logoutBtn" class="logout-btn" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+                </div>
+            </div>
+            
+            <!-- ৩টি দাগের নিয়ন ব্লু বাটন -->
+            <button class="menu-toggle" id="mobileMenuBtn" aria-label="Toggle Menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- লাইভ পেজের হেডার -->
+    <div class="live-header">
+        <h1><span class="live-pulse-dot"></span> Live Streams Broadcasting Now</h1>
+        <p>Watch football, cricket, tournament matches & live events streaming right now.</p>
+    </div>
+
+    <!-- ভিডিও গ্রিড সেকশন (সম্পূর্ণ ফায়ারস্টোর থেকে শুধু লাইভ ম্যাচ আসবে) -->
+    <main class="video-section">
+        <div class="video-grid" id="liveContainer">
+            <p style="color: #888; text-align: center; grid-column: 1 / -1; padding: 40px 0;">Connecting to live broadcast server...</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-box">
+                <h2><i class="fa-solid fa-play-circle"></i> Lego Sight</h2>
+                <p>The best platform to watch live sports, gaming, and events seamlessly.</p>
+            </div>
+            <div class="footer-box">
+                <h2>Quick Links</h2>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div class="footer-box">
+                <h2>Contact Us</h2>
+                <p><i class="fa-solid fa-phone"></i> <span id="footerPhone">Loading...</span></p>
+                <p><i class="fa-brands fa-whatsapp" style="color: #25D366;"></i> <span id="footerWhatsapp">Loading...</span></p>
+                <p><i class="fa-solid fa-envelope" style="color: #ea4335;"></i> <span id="footerEmail">Loading...</span></p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 Lego Sight. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- 🌟 ফায়ারস্টোর কানেকশন ও ডাইনামিক ১৬:৯ লাইভ কার্ড লোডার স্ক্রিপ্ট 🌟 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // আপনার ফায়ারবেস কনফিগ
+       const firebaseConfig = {
+            apiKey: "AIzaSyDWugLg2G3Bvo5q6vPxIdGUUdKH1W0NenE",
+            authDomain: "lego-sight.firebaseapp.com",
+            projectId: "lego-sight",
+            storageBucket: "lego-sight.firebasestorage.app",
+            messagingSenderId: "417663931445",
+            appId: "1:417663931445:web:270748ca31cb2912cb4d7c",
+            measurementId: "G-KREWWFSZZ2"
+        };
+
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        const liveContainer = document.getElementById("liveContainer");
+
+        // ফায়ারস্টোর থেকে শুধুমাত্র লাইভ ভিডিও (isLive: true) লোড করার ফাংশন
+        async function fetchLiveStreams() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "videos"));
+                liveContainer.innerHTML = "";
+                let liveCount = 0;
+
+                querySnapshot.forEach((docItem) => {
+                    const video = docItem.data();
+
+                    // 🌟 শুধুমাত্র এবং শুধুমাত্র যেগুলোতে isLive: true আছে, সেগুলোই আসবে 🌟
+                    if (video.isLive === true) {
+                        liveCount++;
+                        
+                        const fallbackThumb = "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=600";
+                        const thumbImg = video.thumbnailUrl && video.thumbnailUrl.trim() !== "" ? video.thumbnailUrl : fallbackThumb;
+
+                        const cardHTML = `
+                            <a href="watch.html?id=${docItem.id}" class="video-card">
+                                <div class="thumbnail-box">
+                                    <img src="${thumbImg}" alt="${video.title || 'Live Match'}">
+                                    <span class="live-badge">🔴 LIVE</span>
+                                </div>
+                                <div class="video-info">
+                                    <h3>${video.title || 'Live Match Streaming'}</h3>
+                                    <p>${video.category || 'Live Sports'} • Broadcasting Now</p>
+                                </div>
+                            </a>
+                        `;
+                        liveContainer.innerHTML += cardHTML;
+                    }
+                });
+
+                // যদি ফায়ারস্টোরে কোনো লাইভ ম্যাচ চালু না থাকে
+                if (liveCount === 0) {
+                    liveContainer.innerHTML = `
+                        <div style="grid-column: 1 / -1; text-align: center; padding: 50px 20px;">
+                            <i class="fa-solid fa-satellite-dish fa-3x" style="color: #444; margin-bottom: 15px;"></i>
+                            <h3 style="color: #fff; font-size: 20px; margin-bottom: 8px;">No Live Matches Right Now</h3>
+                            <p style="color: #777; font-size: 14px;">Currently there are no active live streams. Check back soon or visit the Sports section for match highlights!</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error("Firestore Error:", error);
+                liveContainer.innerHTML = `<p style="color: #ff4d4d; text-align: center; grid-column: 1 / -1; padding: 40px 0;">Connect Firebase Config to load active live streams.</p>`;
+            }
+        }
+
+        // ফুটারের ফোন/হোয়াটসঅ্যাপ ডাটা ফায়ারস্টোর থেকে লোড করা
+        async function loadFooter() {
+            try {
+                const docSnap = await getDoc(doc(db, "settings", "contact"));
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.phone) document.getElementById("footerPhone").innerText = data.phone;
+                    if (data.whatsapp) document.getElementById("footerWhatsapp").innerText = "WhatsApp: " + data.whatsapp;
+                    if (data.email) document.getElementById("footerEmail").innerText = data.email;
+                }
+            } catch (e) {
+                console.log("Footer contact loaded default.");
+            }
+        }
+
+        // পেজ লোড হলে চালু হবে
+        fetchLiveStreams();
+        loadFooter();
+    </script>
+
+    <!-- মোবাইল মেনু টগল স্ক্রিপ্ট -->
+    <script>
+        const menuBtn = document.getElementById("mobileMenuBtn");
+        const navLinks = document.getElementById("navLinks");
+        if (menuBtn && navLinks) {
+            menuBtn.onclick = function(e) {
+                e.stopPropagation();
+                navLinks.classList.toggle("active");
+                menuBtn.classList.toggle("open");
+            };
+        }
+    </script>
+    <!-- 🌟 সব পেজের জন্য মাস্টার লগইন লিংক 🌟 -->
+<script type="module" src="auth-modal.js"></script>
+</body>
+</html>

@@ -1,0 +1,909 @@
+/* ========================================================= */
+/* 🌟 ১. বেসিক রিসেট ও গ্লোবাল স্টাইল 🌟 */
+/* ========================================================= */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #121212;
+    color: #ffffff;
+    overflow-x: hidden;
+}
+
+/* ========================================================= */
+/* 🌟 ২. হেডার, নেভিগেশন ও নতুন ৩D লোগো 🌟 */
+/* ========================================================= */
+.navbar {
+    background-color: #1f1f1f;
+    padding: 10px 25px; /* কমপ্যাক্ট প্যাডিং যাতে জুমেও মেনু না ভাঙে */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* ৩D লোগো স্টাইল */
+.logo a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: #ffffff;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.site-logo-img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid #0099ff;
+    box-shadow: 0 0 15px rgba(0, 153, 255, 0.6); /* নীল নিয়ন গ্লো */
+    transition: transform 0.3s ease;
+}
+
+.logo a:hover .site-logo-img {
+    transform: rotate(15deg) scale(1.08);
+}
+
+.logo-text span {
+    color: #0099ff;
+}
+
+/* ডেস্কটপ মেনু লিংক (১৫০% ও ১৭৫% জুমেও যাতে ফিট থাকে) */
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.nav-links a {
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 500;
+    transition: 0.3s;
+}
+
+.nav-links a:hover, 
+.nav-links a.active-link {
+    color: #ff0000;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.login-btn {
+    background-color: #ff0000;
+    color: white;
+    border: none;
+    padding: 7px 16px;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.login-btn:hover {
+    background-color: #cc0000;
+}
+
+/* ========================================================= */
+/* 🌟 ৩. ডার্ক মোডে উজ্জ্বল নিয়ন ব্লু ৩-দাগের বাটন 🌟 */
+/* ========================================================= */
+.menu-toggle {
+    display: none; /* সাধারণ ও ১৫০%-১৭৫% জুমে পিসিতে হাইড থাকবে */
+    flex-direction: column;
+    justify-content: space-between;
+    width: 38px;
+    height: 36px;
+    background: #1c1c1c !important;
+    border: 1.5px solid #0099ff !important;
+    border-radius: 8px;
+    padding: 8px 7px !important;
+    cursor: pointer;
+    z-index: 10002;
+    box-shadow: 0 0 12px rgba(0, 153, 255, 0.35);
+    transition: all 0.3s ease;
+}
+
+.menu-toggle:hover {
+    background: #252525 !important;
+    box-shadow: 0 0 18px rgba(0, 153, 255, 0.7);
+}
+
+.menu-toggle .bar {
+    display: block !important;
+    width: 100% !important;
+    height: 2.8px !important;
+    background-color: #00d2ff !important;
+    border-radius: 3px !important;
+    box-shadow: 0 0 8px #00d2ff !important;
+    transition: 0.3s ease-in-out;
+}
+
+/* ক্লিক করলে ৩ দাগ লাল রঙের 'X' হবে */
+.menu-toggle.open {
+    border-color: #ff0000 !important;
+    box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+}
+
+.menu-toggle.open .bar:nth-child(1) {
+    transform: translateY(6.5px) rotate(45deg);
+    background-color: #ff0000 !important;
+    box-shadow: 0 0 8px #ff0000 !important;
+}
+.menu-toggle.open .bar:nth-child(2) {
+    opacity: 0;
+}
+.menu-toggle.open .bar:nth-child(3) {
+    transform: translateY(-6.5px) rotate(-45deg);
+    background-color: #ff0000 !important;
+    box-shadow: 0 0 8px #ff0000 !important;
+}
+
+/* ========================================================= */
+/* 🌟 ৪. ডাইনামিক ব্যানার ও লাইভ বাটন 🌟 */
+/* ========================================================= */
+.banner-section {
+    padding: 20px 25px;
+}
+
+.banner {
+    width: 100%;
+    height: 350px;
+    background-color: #2a2a2a;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: 0.5s;
+}
+
+.banner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 12px;
+}
+
+.banner-text {
+    position: relative;
+    text-align: center;
+}
+
+.banner-text h1 {
+    font-size: 42px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.banner-text p {
+    font-size: 18px;
+    color: #ddd;
+}
+
+.live-pulse {
+    background: #ff0000;
+    color: white;
+    padding: 5px 14px;
+    font-size: 13px;
+    font-weight: bold;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+    animation: pulse 1.5s infinite;
+}
+
+.banner-play-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #ff0000;
+    color: white;
+    text-decoration: none;
+    padding: 11px 28px;
+    font-size: 15px;
+    font-weight: bold;
+    border-radius: 30px;
+    margin-top: 16px;
+    transition: 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.5);
+}
+
+.banner-play-btn:hover {
+    background-color: #cc0000;
+    transform: scale(1.06);
+    box-shadow: 0 6px 20px rgba(255, 0, 0, 0.8);
+}
+
+/* ========================================================= */
+/* 💥 ৫. ক্যাটাগরি বাটন ও স্ম্যাশ (Smash Click) ইফেক্ট 💥 */
+/* ========================================================= */
+.categories {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    padding: 18px 25px;
+    flex-wrap: wrap;
+}
+
+.cat-btn {
+    position: relative;
+    background: #1f1f1f;
+    color: #ffffff;
+    border: 1px solid #333333;
+    padding: 9px 22px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    user-select: none;
+    outline: none;
+    overflow: hidden;
+    transition: transform 0.15s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cat-btn:hover {
+    border-color: #ff0000;
+    color: #ffffff;
+}
+
+.cat-btn:active {
+    transform: scale(0.88);
+    background: #ff0000 !important;
+    border-color: #ff0000 !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 25px #ff0000, 0 0 50px rgba(255, 0, 0, 0.8) !important;
+}
+
+.cat-btn.active {
+    background: #ff0000;
+    border-color: #ff0000;
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
+}
+
+.live-btn {
+    background-color: #ff0000;
+    border-color: #ff0000;
+    font-weight: bold;
+}
+
+/* ========================================================= */
+/* 🎬 ৬. ১৬:৯ সিনেমাটিক ভিডিও গ্রিড 🎬 */
+/* ========================================================= */
+.video-section {
+    padding: 20px 25px;
+    min-height: 300px;
+}
+
+.section-title {
+    font-size: 22px;
+    margin-bottom: 20px;
+    border-left: 4px solid #ff0000;
+    padding-left: 10px;
+}
+
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 22px;
+    padding: 10px 0;
+}
+
+@media (min-width: 1400px) {
+    .video-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.video-card {
+    background-color: #1a1a1a;
+    border-radius: 12px;
+    overflow: hidden;
+    text-decoration: none;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #282828;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.video-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+    border-color: #ff0000;
+}
+
+.thumbnail, .thumbnail-box {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    position: relative;
+    background-color: #000;
+    overflow: hidden;
+}
+
+.thumbnail img, .thumbnail-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+.video-card:hover .thumbnail img,
+.video-card:hover .thumbnail-box img {
+    transform: scale(1.05);
+}
+
+.live-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #ff0000;
+    color: white;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: bold;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(0.98); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+.video-info {
+    padding: 14px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.video-info h3 {
+    font-size: 15px;
+    margin-bottom: 6px;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.video-info p {
+    color: #888;
+    font-size: 13px;
+}
+
+/* ========================================================= */
+/* 🌟 ৭. ফুটার ডিজাইন 🌟 */
+/* ========================================================= */
+.footer {
+    background-color: #0a0a0a;
+    margin-top: 50px;
+    padding: 40px 25px;
+    border-top: 1px solid #222;
+}
+
+.footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 30px;
+}
+
+.footer-box h2 {
+    color: white;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.footer-box p, .footer-box a {
+    color: #888;
+    text-decoration: none;
+    line-height: 1.8;
+    display: block;
+}
+
+.footer-box a:hover {
+    color: #ff0000;
+}
+
+.footer-bottom {
+    text-align: center;
+    color: #555;
+    margin-top: 30px;
+    font-size: 13px;
+}
+
+/* ========================================================= */
+/* 🌟 ৮. লগইন পপআপ মডাল ও প্রোফাইল 🌟 */
+/* ========================================================= */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    visibility: hidden;
+    opacity: 0;
+    transition: 0.3s;
+}
+
+.modal-overlay.active {
+    visibility: visible;
+    opacity: 1;
+}
+
+.modal-box {
+    background: linear-gradient(145deg, #1e1e1e, #121212);
+    border: 1px solid #333;
+    padding: 35px 25px;
+    border-radius: 12px;
+    width: 380px;
+    max-width: 90%;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+}
+
+.close-btn {
+    position: absolute;
+    top: 12px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    color: #777;
+    font-size: 26px;
+    cursor: pointer;
+}
+
+.close-btn:hover {
+    color: #ff0000;
+}
+
+.modal-header h2 {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.highlight {
+    color: #ff0000;
+}
+
+.modal-header p {
+    color: #999;
+    font-size: 13px;
+    margin-bottom: 20px;
+}
+
+.auth-input {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 12px;
+    background: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 6px;
+    color: white;
+    outline: none;
+}
+
+.auth-input:focus {
+    border-color: #ff0000;
+}
+
+.submit-btn {
+    width: 100%;
+    background-color: #ff0000;
+    color: white;
+    border: none;
+    padding: 11px;
+    font-size: 15px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.submit-btn:hover {
+    background-color: #cc0000;
+}
+
+.toggle-auth {
+    margin-top: 15px;
+    font-size: 13px;
+    color: #aaa;
+}
+
+.toggle-auth a {
+    color: #ff0000;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.divider {
+    margin: 20px 0;
+    color: #555;
+    font-size: 13px;
+    position: relative;
+}
+
+.divider::before, .divider::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 40%;
+    height: 1px;
+    background: #333;
+}
+
+.divider::before { left: 0; }
+.divider::after { right: 0; }
+
+.google-btn {
+    width: 100%;
+    background-color: white;
+    color: #333;
+    border: none;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.google-btn img {
+    width: 18px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.profile-section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #2a2a2a;
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid #444;
+}
+
+.profile-icon {
+    color: #ff0000;
+}
+
+.logout-btn {
+    background: transparent;
+    border: none;
+    color: #888;
+    cursor: pointer;
+}
+
+.logout-btn:hover {
+    color: #ff0000;
+}
+
+/* ========================================================= */
+/* 🌟 ৯. ওয়াচ পেজ লেআউট 🌟 */
+/* ========================================================= */
+.watch-container {
+    display: flex;
+    gap: 25px;
+    padding: 25px 35px;
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+.main-player-section {
+    flex: 2.6;
+}
+
+.video-player-wrapper {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.8);
+    border: 1px solid #333;
+}
+
+.video-header-info {
+    margin-top: 15px;
+    border-bottom: 1px solid #333;
+    padding-bottom: 15px;
+}
+
+.video-header-info h1 {
+    font-size: 22px;
+    color: #fff;
+    margin-bottom: 12px;
+}
+
+.video-actions-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.channel-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.channel-info h4 {
+    font-size: 15px;
+    color: #fff;
+}
+
+.live-tag {
+    background: #ff0000;
+    color: white;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.subscribe-btn {
+    background: #ff0000;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: 0.3s;
+}
+
+.subscribe-btn:hover {
+    background: #cc0000;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.action-btn {
+    background: #2a2a2a;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: 0.3s;
+}
+
+.action-btn:hover {
+    background: #444;
+}
+
+.comments-section {
+    margin-top: 25px;
+}
+
+.comments-section h3 {
+    font-size: 18px;
+    margin-bottom: 15px;
+}
+
+.comment-input-box {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 25px;
+}
+
+.comment-input-box input {
+    flex: 1;
+    background: #1f1f1f;
+    border: 1px solid #333;
+    padding: 12px 15px;
+    color: white;
+    border-radius: 8px;
+    outline: none;
+}
+
+.comment-input-box input:focus {
+    border-color: #ff0000;
+}
+
+.comment-input-box button {
+    background: #ff0000;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.single-comment {
+    display: flex;
+    gap: 12px;
+    background: #1a1a1a;
+    padding: 12px 15px;
+    border-radius: 8px;
+}
+
+.single-comment i {
+    font-size: 24px;
+    color: #888;
+}
+
+.single-comment h5 {
+    font-size: 14px;
+    color: #aaa;
+    margin-bottom: 3px;
+}
+
+.single-comment p {
+    font-size: 14px;
+    color: #eee;
+}
+
+.related-videos-section {
+    flex: 1.1;
+}
+
+.related-title {
+    font-size: 18px;
+    margin-bottom: 15px;
+    border-left: 4px solid #ff0000;
+    padding-left: 8px;
+}
+
+.related-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.related-card {
+    display: flex;
+    gap: 10px;
+    background: #1f1f1f;
+    border-radius: 8px;
+    overflow: hidden;
+    text-decoration: none;
+    color: white;
+    transition: 0.3s;
+}
+
+.related-card:hover {
+    background: #2c2c2c;
+    transform: translateX(4px);
+}
+
+.related-card img {
+    width: 130px;
+    height: 80px;
+    object-fit: cover;
+}
+
+.related-info {
+    padding: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.related-info h4 {
+    font-size: 13px;
+    line-height: 1.3;
+    margin-bottom: 4px;
+}
+
+.related-info span {
+    font-size: 11px;
+    color: #888;
+}
+
+/* ========================================================= */
+/* 📱 ১০. মোবাইল রেসপন্সিভ (৭৬৮ পিক্সেল - আসল মোবাইলে বা ২০০% জুমে ট্রিগার হবে) 📱 */
+/* ========================================================= */
+@media (max-width: 768px) {
+    /* আসল মোবাইলে অথবা পিসিতে ২০০% জুম করলেই কেবল ৩ দাগের বাটন আসবে */
+    .menu-toggle {
+        display: flex !important;
+    }
+
+    /* মেনুগুলো স্লাইড হয়ে ভেতরে চলে যাবে */
+    .nav-links {
+        display: flex !important;
+        flex-direction: column;
+        align-items: flex-start;
+        position: fixed;
+        top: 55px;
+        right: -100%;
+        width: 250px;
+        height: 100vh;
+        background-color: #1a1a1a;
+        padding: 30px 20px;
+        transition: right 0.3s ease-in-out;
+        box-shadow: -5px 0 20px rgba(0, 0, 0, 0.8);
+        z-index: 10001;
+    }
+
+    .nav-links.active {
+        right: 0 !important;
+    }
+
+    .nav-links a {
+        margin: 12px 0;
+        font-size: 17px;
+        border-bottom: 1px solid #333;
+        width: 100%;
+        padding-bottom: 10px;
+    }
+
+    .banner {
+        height: 220px;
+    }
+
+    .banner-text h1 {
+        font-size: 26px;
+    }
+
+    .banner-play-btn {
+        padding: 9px 22px;
+        font-size: 14px;
+        margin-top: 12px;
+    }
+
+    .watch-container {
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    .video-header-info h1 {
+        font-size: 18px;
+    }
+}

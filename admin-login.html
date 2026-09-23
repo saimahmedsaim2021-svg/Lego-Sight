@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal - Lego Sight</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background: radial-gradient(circle at center, #1e1e1e 0%, #0d0d0d 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .admin-login-card {
+            width: 100%;
+            max-width: 420px;
+            background: linear-gradient(145deg, #1c1c1c, #141414);
+            border: 1px solid #2e2e2e;
+            border-radius: 16px;
+            padding: 40px 30px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 153, 255, 0.15);
+            text-align: center;
+            position: relative;
+        }
+
+        .admin-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 0, 0, 0.15);
+            color: #ff4d4d;
+            border: 1px solid rgba(255, 0, 0, 0.4);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
+        }
+
+        .admin-login-card h2 {
+            font-size: 26px;
+            color: #ffffff;
+            margin-bottom: 8px;
+        }
+
+        .admin-login-card h2 span {
+            color: #00d2ff;
+        }
+
+        .admin-login-card p {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            color: #bbb;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            background: #242424;
+            border: 1px solid #383838;
+            padding: 12px 14px;
+            border-radius: 8px;
+            color: #fff;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: #0099ff;
+            box-shadow: 0 0 10px rgba(0, 153, 255, 0.4);
+        }
+
+        .btn-admin-submit {
+            width: 100%;
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-admin-submit:hover {
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .google-admin-btn {
+            width: 100%;
+            background: #ffffff;
+            color: #222;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            transition: 0.3s;
+        }
+
+        .google-admin-btn:hover {
+            background: #e6e6e6;
+        }
+
+        .divider {
+            margin: 20px 0;
+            color: #555;
+            font-size: 13px;
+            position: relative;
+        }
+
+        .divider::before, .divider::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 42%;
+            height: 1px;
+            background: #2a2a2a;
+        }
+        .divider::before { left: 0; }
+        .divider::after { right: 0; }
+
+        .error-box {
+            background: rgba(255, 0, 0, 0.15);
+            border: 1px solid #ff4d4d;
+            color: #ff6666;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin-bottom: 18px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="admin-login-card">
+        <div class="admin-badge">
+            <i class="fa-solid fa-shield-halved"></i> RESTRICTED PORTAL
+        </div>
+
+        <img src="logo.png" alt="Lego Sight" style="width: 50px; height: 50px; border-radius: 50%; border: 2px solid #0099ff; margin-bottom: 12px;" onerror="this.style.display='none';">
+
+        <h2>Lego <span>Sight</span> Admin</h2>
+        <p>Sign in to manage live streams, sports videos & content.</p>
+
+        <!-- এরর মেসেজ বক্স -->
+        <div class="error-box" id="errorBox"></div>
+
+        <!-- ইমেইল ও পাসওয়ার্ড দিয়ে লগইন -->
+        <form id="adminLoginForm">
+            <div class="form-group">
+                <label>Admin Email</label>
+                <input type="email" id="adminEmail" placeholder="admin@legosight.com" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="adminPassword" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn-admin-submit" id="loginBtn">Login to Console</button>
+        </form>
+
+        <div class="divider">or</div>
+
+        <!-- গুগল অথ দিয়ে লগইন -->
+        <button type="button" class="google-admin-btn" id="googleAdminLoginBtn">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" width="18" alt="Google">
+            Sign in with Google
+        </button>
+    </div>
+
+    <!-- 🌟 অ্যাডমিন ভেরিফিকেশন ও রোল চেকিং স্ক্রিপ্ট 🌟 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // আপনার ফায়ারবেস কনফিগ
+        const firebaseConfig = {
+            apiKey: "AIzaSyDWugLg2G3Bvo5q6vPxIdGUUdKH1W0NenE",
+            authDomain: "lego-sight.firebaseapp.com",
+            projectId: "lego-sight",
+            storageBucket: "lego-sight.firebasestorage.app",
+            messagingSenderId: "417663931445",
+            appId: "1:417663931445:web:270748ca31cb2912cb4d7c",
+            measurementId: "G-KREWWFSZZ2"
+        };
+
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const errorBox = document.getElementById("errorBox");
+
+        function showError(msg) {
+            errorBox.innerText = msg;
+            errorBox.style.display = "block";
+        }
+
+        // 🌟 অ্যাডমিন ভেরিফিকেশন ফাংশন (Super Admin না Junior Admin চেক করা) 🌟
+        async function verifyAdminRole(user) {
+            try {
+                // ফায়ারস্টোরের 'admins' কালেকশনে ইউজারের UID চেক করা
+                const adminDoc = await getDoc(doc(db, "admins", user.uid));
+
+                if (adminDoc.exists()) {
+                    const adminData = adminDoc.data();
+                    const role = adminData.role; // 'super_admin' অথবা 'junior_admin'
+
+                    // লোকাল স্টোরেজে রোল সেভ করে রাখা
+                    sessionStorage.setItem("adminUser", JSON.stringify({
+                        uid: user.uid,
+                        email: user.email,
+                        name: user.displayName || adminData.name || "Admin",
+                        role: role
+                    }));
+
+                    // সফল হলে আসল অ্যাডমিন ড্যাশবোর্ডে নিয়ে যাবে
+                    window.location.href = "admin-dashboard.html";
+                } else {
+                    // যদি ডেটাবেসে কোনো অ্যাডমিন হিসেবে তালিকাভুক্ত না থাকে
+                    await signOut(auth);
+                    sessionStorage.clear();
+                    showError("⛔ Access Denied! Your account is not authorized as an Admin.");
+                }
+            } catch (err) {
+                showError("Verification error: " + err.message);
+            }
+        }
+
+        // ইমেইল/পাসওয়ার্ড ফর্ম সাবমিট
+        document.getElementById("adminLoginForm").onsubmit = async (e) => {
+            e.preventDefault();
+            errorBox.style.display = "none";
+            const email = document.getElementById("adminEmail").value;
+            const password = document.getElementById("adminPassword").value;
+
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                await verifyAdminRole(userCredential.user);
+            } catch (err) {
+                showError("Login Failed: " + err.message);
+            }
+        };
+
+        // গুগল দিয়ে অ্যাডমিন লগইন
+        document.getElementById("googleAdminLoginBtn").onclick = async () => {
+            errorBox.style.display = "none";
+            try {
+                const provider = new GoogleAuthProvider();
+                const result = await signInWithPopup(auth, provider);
+                await verifyAdminRole(result.user);
+            } catch (err) {
+                showError("Google Sign-In Failed: " + err.message);
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy - Lego Sight</title>
+    <!-- CSS ফাইল -->
+    <link rel="stylesheet" href="style.css">
+    <!-- আইকন লাইব্রেরি -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* 🌟 Privacy Policy পেজ স্পেশাল স্টাইল 🌟 */
+        .privacy-wrapper {
+            max-width: 950px;
+            margin: 40px auto 60px auto;
+            padding: 40px 30px;
+            background: linear-gradient(145deg, #1a1a1a, #141414);
+            border-radius: 14px;
+            border: 1px solid #282828;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+        }
+
+        .privacy-header {
+            text-align: center;
+            border-bottom: 1px solid #2c2c2c;
+            padding-bottom: 25px;
+            margin-bottom: 30px;
+        }
+
+        .privacy-header h1 {
+            font-size: 34px;
+            color: #ffffff;
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+
+        .privacy-header h1 span {
+            color: #ff0000;
+        }
+
+        .last-updated-badge {
+            display: inline-block;
+            background: #222;
+            color: #00d2ff;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            border: 1px solid rgba(0, 210, 255, 0.3);
+        }
+
+        .privacy-body {
+            color: #ccc;
+            line-height: 1.8;
+            font-size: 15px;
+        }
+
+        .privacy-section {
+            margin-bottom: 30px;
+        }
+
+        .privacy-section h2 {
+            font-size: 20px;
+            color: #ffffff;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 3px solid #ff0000;
+            padding-left: 10px;
+        }
+
+        .privacy-section p {
+            margin-bottom: 10px;
+            color: #aaa;
+        }
+
+        .privacy-section ul {
+            list-style: disc;
+            margin-left: 25px;
+            margin-top: 8px;
+            color: #bbb;
+        }
+
+        .privacy-section ul li {
+            margin-bottom: 6px;
+        }
+
+        @media (max-width: 768px) {
+            .privacy-wrapper {
+                margin: 20px 15px;
+                padding: 25px 18px;
+            }
+            .privacy-header h1 {
+                font-size: 26px;
+            }
+        }
+    </style>
+</head>
+<body data-page="privacy">
+
+    <!-- Header / Navbar -->
+    <header class="navbar">
+        <div class="logo">
+            <!-- 🌟 ৩D লোগো 🌟 -->
+            <a href="index.html">
+                <img src="logo.png" alt="Lego Sight" class="site-logo-img" onerror="this.src='https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=100';">
+                <span class="logo-text">Lego <span>Sight</span></span>
+            </a>
+        </div>
+        
+        <!-- Navigation Links -->
+        <nav class="nav-links" id="navLinks">
+            <a href="index.html">Home</a>
+            <a href="live.html">Live Now</a>
+            <a href="sports.html">Sports</a>
+            <a href="about.html">About</a>
+        </nav>
+        
+        <div class="header-right">
+            <!-- Auth Section -->
+            <div id="authSection">
+                <button class="login-btn" id="headerLoginBtn">Login</button>
+            </div>
+            
+            <!-- ৩টি দাগের নিয়ন ব্লু বাটন -->
+            <button class="menu-toggle" id="mobileMenuBtn" aria-label="Toggle Menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- 🌟 প্রাইভেসির মূল কন্টেইনার (রিয়েলটাইম ফায়ারস্টোরের সাথে কানেক্টেড) 🌟 -->
+    <main class="privacy-wrapper">
+        <div class="privacy-header">
+            <h1>Privacy Policy for <span>Lego Sight</span></h1>
+            <span class="last-updated-badge" id="lastUpdatedBadge">Last Updated: Loading...</span>
+        </div>
+
+        <div class="privacy-body" id="privacyContent">
+            <!-- ফায়ারস্টোর থেকে রিয়েলটাইমে লোড হবে (ডিফল্ট ব্যাকআপ সহ) -->
+            <div class="privacy-section">
+                <h2><i class="fa-solid fa-shield-halved" style="color: #ff0000;"></i> 1. Information We Collect</h2>
+                <p id="policyInfoText">At Lego Sight, we prioritize your security. When you register or interact on our live sports platform, we collect information including:</p>
+                <ul>
+                    <li>Your Name and Email address via Google Firebase Authentication.</li>
+                    <li>Your comments, likes, and profile preferences submitted during live matches.</li>
+                    <li>Device and browser information for optimal 16:9 video player streaming performance.</li>
+                </ul>
+            </div>
+
+            <div class="privacy-section">
+                <h2><i class="fa-solid fa-database" style="color: #ff0000;"></i> 2. How We Use Your Information</h2>
+                <p id="policyUseText">We use the collected information strictly to enhance your sports viewing experience:</p>
+                <ul>
+                    <li>To verify your identity when posting real-time comments, liking, or subscribing to matches.</li>
+                    <li>To provide seamless adaptive streaming across Smart TVs, computers, and mobile devices.</li>
+                    <li>To protect our community against spam and unauthorized broadcast interruptions.</li>
+                </ul>
+            </div>
+
+            <div class="privacy-section">
+                <h2><i class="fa-solid fa-lock" style="color: #ff0000;"></i> 3. Security & Cloud Protection</h2>
+                <p id="policySecurityText">All user authentication tokens and database entries are stored securely using Google Cloud Firebase infrastructure. We do not sell, rent, or trade your personal data with any third-party advertisers.</p>
+            </div>
+
+            <div class="privacy-section">
+                <h2><i class="fa-solid fa-envelope-circle-check" style="color: #ff0000;"></i> 4. Contact & Inquiries</h2>
+                <p>If you have any questions about this Privacy Policy or wish to request data deletion, contact our official support team via the contact details provided in the footer.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-box">
+                <h2><i class="fa-solid fa-play-circle"></i> Lego Sight</h2>
+                <p>The best platform to watch live sports, gaming, and events seamlessly.</p>
+            </div>
+            <div class="footer-box">
+                <h2>Quick Links</h2>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="privacy.html" style="color: #ff0000;">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div class="footer-box">
+                <h2>Contact Us</h2>
+                <p><i class="fa-solid fa-phone"></i> <span id="footerPhone">Loading...</span></p>
+                <p><i class="fa-brands fa-whatsapp" style="color: #25D366;"></i> <span id="footerWhatsapp">Loading...</span></p>
+                <p><i class="fa-solid fa-envelope" style="color: #ea4335;"></i> <span id="footerEmail">Loading...</span></p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 Lego Sight. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- 🌟 ফায়ারস্টোর রিয়েল-টাইম কানেকশন স্ক্রিপ্ট 🌟 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // আপনার ফায়ারবেস কনফিগ
+        const firebaseConfig = {
+            apiKey: "AIzaSyDWugLg2G3Bvo5q6vPxIdGUUdKH1W0NenE",
+            authDomain: "lego-sight.firebaseapp.com",
+            projectId: "lego-sight",
+            storageBucket: "lego-sight.firebasestorage.app",
+            messagingSenderId: "417663931445",
+            appId: "1:417663931445:web:270748ca31cb2912cb4d7c",
+            measurementId: "G-KREWWFSZZ2"
+        };
+
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // ১. ফায়ারস্টোর থেকে রিয়েলটাইমে পলিসি ডাটা শোনা (onSnapshot)
+        const privacyDocRef = doc(db, "settings", "privacy");
+        onSnapshot(privacyDocRef, (docSnap) => {
+            const dateBadge = document.getElementById("lastUpdatedBadge");
+
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                if (data.lastUpdated) dateBadge.innerText = "Last Updated: " + data.lastUpdated;
+                if (data.infoText) document.getElementById("policyInfoText").innerText = data.infoText;
+                if (data.useText) document.getElementById("policyUseText").innerText = data.useText;
+                if (data.securityText) document.getElementById("policySecurityText").innerText = data.securityText;
+            } else {
+                // ফায়ারস্টোরে এখনো ডাটা না থাকলে আজকের তারিখ দেখাবে
+                dateBadge.innerText = "Last Updated: September 2026";
+            }
+        }, (error) => {
+            document.getElementById("lastUpdatedBadge").innerText = "Last Updated: September 2026";
+        });
+
+        // ২. ফুটারে কন্টাক্ট ডাটা রিয়েলটাইমে লোড করা
+        const contactDocRef = doc(db, "settings", "contact");
+        onSnapshot(contactDocRef, (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                if (data.phone) document.getElementById("footerPhone").innerText = data.phone;
+                if (data.whatsapp) document.getElementById("footerWhatsapp").innerText = "WhatsApp: " + data.whatsapp;
+                if (data.email) document.getElementById("footerEmail").innerText = data.email;
+            }
+        });
+    </script>
+
+    <!-- মোবাইল মেনু টগল স্ক্রিপ্ট -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const toggleBtn = document.getElementById("mobileMenuBtn");
+            const navMenu = document.getElementById("navLinks");
+            
+            if (toggleBtn && navMenu) {
+                toggleBtn.onclick = function() {
+                    navMenu.classList.toggle("active");
+                    toggleBtn.classList.toggle("open"); // ৩ দাগ থেকে লাল 'X' হবে
+                };
+            }
+        });
+    </script>
+    <!-- 🌟 সব পেজের জন্য মাস্টার লগইন লিংক 🌟 -->
+<script type="module" src="auth-modal.js"></script>
+</body>
+</html>

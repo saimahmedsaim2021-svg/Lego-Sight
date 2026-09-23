@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sports Arena - Lego Sight</title>
+    <!-- CSS ফাইল -->
+    <link rel="stylesheet" href="style.css">
+    <!-- আইকন লাইব্রেরি -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .sports-header {
+            padding: 35px 25px 15px 25px;
+            text-align: center;
+        }
+        .sports-header h1 {
+            font-size: 32px;
+            color: #ffffff;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .sports-header p {
+            color: #aaa;
+            font-size: 15px;
+        }
+        .sports-filter {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 22px;
+            flex-wrap: wrap;
+        }
+        .sport-chip {
+            background: #1f1f1f;
+            color: white;
+            border: 1px solid #333;
+            padding: 9px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: 0.3s;
+        }
+        .sport-chip:hover, .sport-chip.active {
+            background: #ff0000;
+            border-color: #ff0000;
+        }
+
+        /* 🌟 নিখুঁত ১৬:৯ সাইজ গ্রিড (টিভি, পিসি ও মোবাইলে কখনোই লম্বাটে হবে না) 🌟 */
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 22px;
+            padding: 20px 0;
+        }
+
+        /* বড় পিসি বা টিভির জন্য ৪ কলামে নিখুঁত ডিসপ্লে */
+        @media (min-width: 1400px) {
+            .video-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .video-card {
+            background-color: #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+            text-decoration: none;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #282828;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+            border-color: #ff0000;
+        }
+
+        /* 🎬 ১৬:৯ সিনেমাটিক থাম্বনেইল বক্স 🎬 */
+        .thumbnail-box {
+            width: 100%;
+            aspect-ratio: 16 / 9; /* কোনো অবস্থাতেই ছবি বিকৃত বা লম্বাটে হবে না */
+            position: relative;
+            background-color: #000;
+            overflow: hidden;
+        }
+
+        .thumbnail-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* ছবির সাইজ নিজে থেকেই খাপে খাপে বসবে */
+            display: block;
+            transition: transform 0.3s ease;
+        }
+
+        .video-card:hover .thumbnail-box img {
+            transform: scale(1.05);
+        }
+
+        /* লাইভ ব্যাজ (অ্যাডমিন ট্রু দিলেই শুধু জ্বলবে) */
+        .live-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: #ff0000;
+            color: #ffffff;
+            padding: 3px 8px;
+            font-size: 11px;
+            font-weight: bold;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+            animation: pulse 1.5s infinite;
+        }
+
+        .video-info {
+            padding: 14px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .video-info h3 {
+            font-size: 16px;
+            color: #fff;
+            margin-bottom: 6px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .video-info p {
+            color: #888;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body data-page="sports">
+
+    <!-- Header -->
+    <header class="navbar">
+        <div class="logo">
+            <!-- 🌟 ৩D লোগো 🌟 -->
+            <a href="index.html">
+                <img src="logo.png" alt="Lego Sight" class="site-logo-img" onerror="this.src='https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=100';">
+                <span class="logo-text">Lego <span>Sight</span></span>
+            </a>
+        </div>
+        
+        <!-- Navigation Links (Sports লাল রঙে সিলেক্ট করা) -->
+        <nav class="nav-links" id="navLinks">
+            <a href="index.html">Home</a>
+            <a href="live.html">Live Now</a>
+            <a href="sports.html" class="active-link" style="color: #ff0000;">Sports</a>
+            <a href="about.html">About</a>
+        </nav>
+        
+        <div class="header-right">
+            <!-- Auth Section -->
+            <div id="authSection">
+                <button class="login-btn" id="headerLoginBtn">Login</button>
+                <div id="userProfile" class="profile-section hidden">
+                    <i class="fa-solid fa-circle-user profile-icon"></i>
+                    <span id="userNameDisplay">User</span>
+                    <button id="logoutBtn" class="logout-btn" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+                </div>
+            </div>
+            
+            <!-- ৩টি দাগের নিয়ন ব্লু বাটন -->
+            <button class="menu-toggle" id="mobileMenuBtn" aria-label="Toggle Menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- স্পোর্টস পেজের হেডার ও ফিল্টার বাটন -->
+    <div class="sports-header">
+        <h1>⚽ Sports Arena</h1>
+        <p>Watch football, cricket matches & tournament coverage directly from server.</p>
+        
+        <div class="sports-filter">
+            <button class="sport-chip active" id="chipAll">All Sports</button>
+            <button class="sport-chip" id="chipFootball">Football <i class="fa-solid fa-futbol"></i></button>
+            <button class="sport-chip" id="chipCricket">Cricket <i class="fa-solid fa-baseball-bat-ball"></i></button>
+        </div>
+    </div>
+
+    <!-- ভিডিও গ্রিড সেকশন (সম্পূর্ণ ফায়ারস্টোর থেকে আসবে) -->
+    <main class="video-section">
+        <div class="video-grid" id="sportsContainer">
+            <p style="color: #888; text-align: center; grid-column: 1 / -1; padding: 40px 0;">Loading sports matches from database...</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-box">
+                <h2><i class="fa-solid fa-play-circle"></i> Lego Sight</h2>
+                <p>The best platform to watch live sports, gaming, and events seamlessly.</p>
+            </div>
+            <div class="footer-box">
+                <h2>Quick Links</h2>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div class="footer-box">
+                <h2>Contact Us</h2>
+                <p><i class="fa-solid fa-phone"></i> <span id="footerPhone">Loading...</span></p>
+                <p><i class="fa-brands fa-whatsapp" style="color: #25D366;"></i> <span id="footerWhatsapp">Loading...</span></p>
+                <p><i class="fa-solid fa-envelope" style="color: #ea4335;"></i> <span id="footerEmail">Loading...</span></p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 Lego Sight. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- 🌟 ফায়ারস্টোর কানেকশন ও ডাইনামিক ১৬:৯ কার্ড লোডার স্ক্রিপ্ট 🌟 -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // আপনার ফায়ারবেস কনফিগ
+       const firebaseConfig = {
+            apiKey: "AIzaSyDWugLg2G3Bvo5q6vPxIdGUUdKH1W0NenE",
+            authDomain: "lego-sight.firebaseapp.com",
+            projectId: "lego-sight",
+            storageBucket: "lego-sight.firebasestorage.app",
+            messagingSenderId: "417663931445",
+            appId: "1:417663931445:web:270748ca31cb2912cb4d7c",
+            measurementId: "G-KREWWFSZZ2"
+        };
+
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let allSportsVideos = [];
+        const sportsContainer = document.getElementById("sportsContainer");
+
+        // ফায়ারস্টোর থেকে স্পোর্টস ভিডিও লোড করার ফাংশন
+        async function fetchSportsVideos() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "videos"));
+                allSportsVideos = [];
+
+                querySnapshot.forEach((docItem) => {
+                    const video = docItem.data();
+                    const cat = (video.category || "").toLowerCase();
+
+                    // শুধু ফুটবল ও ক্রিকেট ভিডিওগুলোই স্পোর্টসে আনা হবে
+                    if (cat === "football" || cat === "cricket") {
+                        allSportsVideos.push({
+                            id: docItem.id,
+                            ...video
+                        });
+                    }
+                });
+
+                renderCards(allSportsVideos);
+            } catch (error) {
+                console.error("Firestore Error:", error);
+                sportsContainer.innerHTML = `<p style="color: #ff4d4d; text-align: center; grid-column: 1 / -1; padding: 40px 0;">Connect Firebase Config to load sports matches.</p>`;
+            }
+        }
+
+        // কার্ডগুলো স্ক্রিনে রেন্ডার করার ফাংশন
+        function renderCards(videosList) {
+            sportsContainer.innerHTML = "";
+
+            if (videosList.length === 0) {
+                sportsContainer.innerHTML = `<p style="color: #888; text-align: center; grid-column: 1 / -1; padding: 40px 0;">No matches published yet by Admin in this category.</p>`;
+                return;
+            }
+
+            videosList.forEach((video) => {
+                // 🌟 অ্যাডমিন isLive: true দিলেই কেবল লাইভ ব্যাজ আসবে, অন্যথায় কোনো লাইভ ব্যাজ আসবে না 🌟
+                const liveBadgeHTML = (video.isLive === true) 
+                    ? `<span class="live-badge">🔴 LIVE</span>` 
+                    : ``;
+
+                const fallbackThumb = "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=600";
+                const thumbImg = video.thumbnailUrl && video.thumbnailUrl.trim() !== "" ? video.thumbnailUrl : fallbackThumb;
+
+                const cardHTML = `
+                    <a href="watch.html?id=${video.id}" class="video-card">
+                        <div class="thumbnail-box">
+                            <img src="${thumbImg}" alt="${video.title || 'Match'}">
+                            ${liveBadgeHTML}
+                        </div>
+                        <div class="video-info">
+                            <h3>${video.title || 'Sports Match'}</h3>
+                            <p>${video.category || 'Sports'} • ${video.isLive === true ? 'Live Now' : 'Match Video'}</p>
+                        </div>
+                    </a>
+                `;
+                sportsContainer.innerHTML += cardHTML;
+            });
+        }
+
+        // ক্যাটাগরি ফিল্টার চিপস
+        function setupFilters() {
+            const chips = document.querySelectorAll(".sport-chip");
+
+            document.getElementById("chipAll").onclick = (e) => {
+                setActive(e.target);
+                renderCards(allSportsVideos);
+            };
+
+            document.getElementById("chipFootball").onclick = (e) => {
+                setActive(e.target);
+                const filtered = allSportsVideos.filter(v => (v.category || "").toLowerCase() === "football");
+                renderCards(filtered);
+            };
+
+            document.getElementById("chipCricket").onclick = (e) => {
+                setActive(e.target);
+                const filtered = allSportsVideos.filter(v => (v.category || "").toLowerCase() === "cricket");
+                renderCards(filtered);
+            };
+
+            function setActive(activeBtn) {
+                chips.forEach(c => c.classList.remove("active"));
+                activeBtn.classList.add("active");
+            }
+        }
+
+        // ফুটারের ফোন/হোয়াটসঅ্যাপ ডাটা ফায়ারস্টোর থেকে লোড করা
+        async function loadFooter() {
+            try {
+                const docSnap = await getDoc(doc(db, "settings", "contact"));
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    if (data.phone) document.getElementById("footerPhone").innerText = data.phone;
+                    if (data.whatsapp) document.getElementById("footerWhatsapp").innerText = "WhatsApp: " + data.whatsapp;
+                    if (data.email) document.getElementById("footerEmail").innerText = data.email;
+                }
+            } catch (e) {
+                console.log("Footer contact loaded default.");
+            }
+        }
+
+        // পেজ লোড হলে চালু হবে
+        fetchSportsVideos();
+        setupFilters();
+        loadFooter();
+    </script>
+
+    <!-- মোবাইল মেনু টগল স্ক্রিপ্ট -->
+    <script>
+        const menuBtn = document.getElementById("mobileMenuBtn");
+        const navLinks = document.getElementById("navLinks");
+        if (menuBtn && navLinks) {
+            menuBtn.onclick = function(e) {
+                e.stopPropagation();
+                navLinks.classList.toggle("active");
+                menuBtn.classList.toggle("open");
+            };
+        }
+    </script>
+    <!-- 🌟 সব পেজের জন্য মাস্টার লগইন লিংক 🌟 -->
+<script type="module" src="auth-modal.js"></script>
+</body>
+</html>

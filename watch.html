@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watch - Lego Sight</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .video-player-wrapper {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background-color: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+            border: 1px solid #333;
+        }
+
+        #ytPlayer, #videoPlayer {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            border: none;
+            outline: none;
+            object-fit: contain;
+        }
+
+        /* ব্যাজ স্টাইল */
+        .live-tag {
+            background: #ff0000;
+            color: #fff;
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
+        }
+
+        .vod-tag {
+            background: #2a2a2a;
+            color: #aaa;
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid #444;
+        }
+
+        .action-btn.active {
+            color: #ff0000 !important;
+        }
+
+        .subscribe-btn.subscribed {
+            background: #333 !important;
+            color: #aaa !important;
+        }
+
+        .auth-warning {
+            color: #ff4d4d;
+            font-size: 13px;
+            margin-top: 8px;
+            display: none;
+        }
+    </style>
+</head>
+<body data-page="watch">
+
+    <!-- Header / Navbar -->
+    <header class="navbar">
+        <div class="logo">
+            <a href="index.html">
+                <i class="fa-solid fa-play-circle"></i> Lego Sight
+            </a>
+        </div>
+        <nav class="nav-links" id="navLinks">
+            <a href="index.html">Home</a>
+            <a href="live.html">Live Now</a>
+            <a href="sports.html">Sports</a>
+            <a href="about.html">About</a>
+        </nav>
+        <div class="header-right">
+            <div id="authSection">
+                <button class="login-btn" id="headerLoginBtn">Login</button>
+                <div id="userProfile" class="profile-section hidden">
+                    <i class="fa-solid fa-circle-user profile-icon"></i>
+                    <span id="userNameDisplay">User</span>
+                    <button id="logoutBtn" class="logout-btn" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+                </div>
+            </div>
+            
+            <button class="menu-toggle" id="mobileMenuBtn" aria-label="Toggle Menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- 🌟 মেইন ওয়াচ কন্টেইনার 🌟 -->
+    <main class="watch-container">
+        
+        <!-- বাম পাশ: প্লেয়ার, লাইক ও রিয়েলটাইম কমেন্ট -->
+        <section class="main-player-section">
+            
+            <!-- স্মার্ট প্লেয়ার স্ক্রিন -->
+            <div class="video-player-wrapper">
+                <!-- ১. ইউটিউব ফ্রেম -->
+                <iframe id="ytPlayer" class="hidden" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                
+                <!-- ২. হাই-স্পিড MP4 প্লেয়ার (কন্ট্রোলস, স্পিড, ফুলস্ক্রিন সহ) -->
+                <video id="videoPlayer" class="hidden" controls playsinline preload="auto">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+
+            <!-- ভিডিও ইনফরমেশন -->
+            <div class="video-header-info">
+                <h1 id="currentVideoTitle">Loading Match...</h1>
+                
+                <div class="video-actions-bar">
+                    <div class="channel-info">
+                        <i class="fa-solid fa-circle-user fa-2x" style="color: #ff0000;"></i>
+                        <div>
+                            <h4 id="videoCategory">---</h4>
+                            <!-- লাইভ হলে LIVE দেখাবে, নাহলে Match Video দেখাবে -->
+                            <span id="statusBadge" class="vod-tag">🎬 Video</span>
+                        </div>
+                        <button class="subscribe-btn" id="subscribeBtn"><i class="fa-solid fa-bell"></i> <span id="subBtnText">Subscribe</span></button>
+                    </div>
+
+                    <!-- লাইক ও শেয়ার বাটন -->
+                    <div class="action-buttons">
+                        <button class="action-btn" id="likeBtn">
+                            <i class="fa-solid fa-thumbs-up"></i> <span id="likeCount">0</span>
+                        </button>
+                        <button class="action-btn" id="shareBtn">
+                            <i class="fa-solid fa-share"></i> Share
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- রিয়েলটাইম কমেন্ট সেকশন -->
+            <div class="comments-section">
+                <h3>Comments (<span id="commentCount">0</span>)</h3>
+                
+                <!-- কমেন্ট বক্স -->
+                <div class="comment-input-box">
+                    <input type="text" id="commentInput" placeholder="Add a public comment..." />
+                    <button id="submitCommentBtn">Comment</button>
+                </div>
+                <p class="auth-warning" id="commentAuthWarning"><i class="fa-solid fa-circle-exclamation"></i> You must login to post a comment.</p>
+
+                <!-- ফায়ারস্টোর থেকে আসল কমেন্টগুলো এসে এখানে সাজবে -->
+                <div class="comments-list" id="commentsList">
+                    <p style="color: #666; font-size: 13px;" id="noCommentsMsg">No comments yet. Be the first to comment!</p>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ডান পাশ: ফায়ারস্টোরের আসল রিলেটেড ভিডিও -->
+        <aside class="related-videos-section">
+            <h3 class="related-title">Related Videos</h3>
+            <div class="related-list" id="relatedVideosList">
+                <p style="color: #666; font-size: 13px;">Loading related matches...</p>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- 🌟 লগইন / সাইন-আপ পপআপ মডাল 🌟 -->
+    <div id="loginModal" class="modal-overlay">
+        <div class="modal-box">
+            <button class="close-btn" id="closeModalBtn">&times;</button>
+            <div class="modal-header">
+                <h2 id="modalTitle">Sign In to <span class="highlight">Lego Sight</span></h2>
+                <p id="modalSubtitle">Login to like, comment & subscribe.</p>
+            </div>
+            <div class="modal-body">
+                <form id="authForm">
+                    <input type="text" id="nameInput" placeholder="Full Name" class="auth-input hidden">
+                    <input type="email" id="emailInput" placeholder="Email Address" class="auth-input" required>
+                    <input type="password" id="passwordInput" placeholder="Password" class="auth-input" required>
+                    <button type="submit" class="submit-btn" id="authSubmitBtn">Sign In</button>
+                </form>
+                <div class="toggle-auth">
+                    <span id="toggleText">Don't have an account? </span>
+                    <a href="#" id="toggleAuthMode">Sign Up</a>
+                </div>
+                <div class="divider">or</div>
+                <button class="google-btn" id="googleLoginBtn">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google">
+                    Continue with Google
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JS Logic -->
+    <script type="module" src="watch.js"></script>
+
+    <!-- মোবাইল মেনু স্ক্রিপ্ট -->
+    <script>
+        const menuBtn = document.getElementById("mobileMenuBtn");
+        const navLinks = document.getElementById("navLinks");
+        if (menuBtn && navLinks) {
+            menuBtn.onclick = function(e) {
+                e.stopPropagation();
+                navLinks.classList.toggle("active");
+                menuBtn.classList.toggle("open");
+            };
+        }
+    </script>
+</body>
+<!-- 🌟 সব পেজের জন্য মাস্টার লগইন লিংক 🌟 -->
+<script type="module" src="auth-modal.js"></script>
+</html>
