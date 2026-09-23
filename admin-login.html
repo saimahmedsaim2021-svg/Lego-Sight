@@ -270,17 +270,21 @@
             }
         };
 
-        // গুগল দিয়ে অ্যাডমিন লগইন
-        document.getElementById("googleAdminLoginBtn").onclick = async () => {
-            errorBox.style.display = "none";
-            try {
-                const provider = new GoogleAuthProvider();
-                const result = await signInWithPopup(auth, provider);
-                await verifyAdminRole(result.user);
-            } catch (err) {
-                showError("Google Sign-In Failed: " + err.message);
-            }
-        };
+       // গুগল দিয়ে অ্যাডমিন লগইন
+document.getElementById("googleAdminLoginBtn").onclick = async () => {
+    errorBox.style.display = "none";
+    try {
+        const provider = new GoogleAuthProvider();
+        
+        // 🌟 এটি দিলে প্রতিবার জিমেইল চুজ করার অপশন দেখাবে 🌟
+        provider.setCustomParameters({ prompt: 'select_account' });
+
+        const result = await signInWithPopup(auth, provider);
+        await verifyAdminRole(result.user);
+    } catch (err) {
+        showError("Google Sign-In Failed: " + err.message);
+    }
+};
     </script>
 </body>
 </html>
