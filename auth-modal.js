@@ -5,16 +5,16 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 import { getFirestore, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-// 🌟 আপনার আসল ফায়ারবেস কনফিগ 🌟
-const firebaseConfig = {
-    apiKey: "AIzaSyDWugLg2G3Bvo5q6vPxIdGUUdKH1W0NenE",
-    authDomain: "lego-sight.firebaseapp.com",
-    projectId: "lego-sight",
-    storageBucket: "lego-sight.firebasestorage.app",
-    messagingSenderId: "417663931445",
-    appId: "1:417663931445:web:270748ca31cb2912cb4d7c",
-    measurementId: "G-KREWWFSZZ2"
-};
+// আপনার ফায়ারবেস কনফিগ
+       const firebaseConfig = {
+            apiKey: "AIzaSyDWugLg2G3Bvo5q6vPxIdGUUdKH1W0NenE",
+            authDomain: "lego-sight.firebaseapp.com",
+            projectId: "lego-sight",
+            storageBucket: "lego-sight.firebasestorage.app",
+            messagingSenderId: "417663931445",
+            appId: "1:417663931445:web:270748ca31cb2912cb4d7c",
+            measurementId: "G-KREWWFSZZ2"
+        };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
