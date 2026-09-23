@@ -440,26 +440,3 @@ document.getElementById("deleteAccountPermanentBtn").onclick = async () => {
     }
 };
 
-// =========================================================
-// ১১. রিয়েল-টাইম অনলাইন ভিজিটর ট্র্যাকার
-// =========================================================
-const visitorId = sessionStorage.getItem("lego_visitor_session") || "vis_" + Math.random().toString(36).substring(2, 10);
-sessionStorage.setItem("lego_visitor_session", visitorId);
-
-const visitorRef = doc(db, "online_visitors", visitorId);
-
-async function pingOnline() {
-    try {
-        await setDoc(visitorRef, {
-            lastSeen: Date.now(),
-            page: window.location.pathname
-        }, { merge: true });
-    } catch(e) {}
-}
-
-pingOnline();
-setInterval(pingOnline, 30000);
-
-window.addEventListener("beforeunload", () => {
-    deleteDoc(visitorRef);
-});
