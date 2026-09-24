@@ -22,35 +22,49 @@ const db = getFirestore(app);
 // ----------------------------------------------------
 // ২. ফায়ারস্টোর থেকে ডাইনামিক ব্যানার ও লাইভ লিংক আনা
 // ----------------------------------------------------
+// =========================================================
+// 🌟 ফায়ারস্টোর ব্যানার + Monetag ডিরেক্ট লিংক ইন্টিগ্রেশন 🌟
+// =========================================================
 async function loadBannerData() {
     try {
         const docSnap = await getDoc(doc(db, "settings", "banner"));
         if (docSnap.exists()) {
             const data = docSnap.data();
             
-            // ১. টাইটেল ও সাবটাইটেল বসানো
+            // ১. টাইটেল, সাবটাইটেল ও ব্যাকগ্রাউন্ড ইমেজ বসানো
             document.getElementById("bannerTitle").innerText = data.title || "Live Match"; 
             document.getElementById("bannerSubtitle").innerText = data.subtitle || "";
             document.getElementById("bannerBackground").style.backgroundImage = `url('${data.imageUrl}')`;
             
-            // ২. বাটনের নাম যদি এডমিন বদলাতে চায় (যেমন: Play Now বা Watch Live)
+            // ২. বাটনের নাম (যেমন: Play Now বা Watch Live)
             if (data.btnText) {
                 document.getElementById("bannerBtnText").innerText = data.btnText;
             }
 
-            // ৩. 🌟 অ্যাডমিনের দেওয়া ভিডিও লিংক দিয়ে watch.html এ পাঠানো 🌟
+            // ৩. 💰 Monetag অ্যাড ও লাইভ ভিডিও রিডাইরেক্ট কানেকশন 💰
             const watchBtn = document.getElementById("bannerWatchBtn");
-            if (data.videoLink) {
-                watchBtn.href = `watch.html?src=${encodeURIComponent(data.videoLink)}&title=${encodeURIComponent(data.title)}&cat=${encodeURIComponent(data.category || 'Live')}`;
-            } else {
-                watchBtn.href = "#";
+            if (watchBtn) {
+                // আসল খেলার পেজের লিংক
+                const targetUrl = data.videoLink 
+                    ? `watch.html?src=${encodeURIComponent(data.videoLink)}&title=${encodeURIComponent(data.title || "Live Match")}&cat=${encodeURIComponent(data.category || "Live")}` 
+                    : "watch.html";
+
+                // বাটনে ক্লিক করলে যা ঘটবে
+                watchBtn.onclick = function(e) {
+                    e.preventDefault();
+
+                    // ১. নতুন ট্যাবে আপনার Monetag বিজ্ঞাপন চালু হবে (আপনার ইনকাম জমা হবে)
+                    window.open("https://omg10.com/4/11879744", "_blank");
+
+                    // ২. মূল ট্যাবে সাথে সাথে দর্শক আসল খেলার ওয়াচ পেজে চলে যাবে
+                    window.location.href = targetUrl;
+                };
             }
         }
     } catch (e) {
         console.log("Waiting for Admin Banner Data...");
     }
 }
-
 async function loadFooterData() {
     try {
         const docSnap = await getDoc(doc(db, "settings", "contact"));
