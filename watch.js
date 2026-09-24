@@ -102,11 +102,14 @@ function getYouTubeId(url) {
     return (match && match[2].length === 11) ? match[2] : null;
 }
 
+// =========================================================
+// 🎬 স্মার্ট ভিডিও প্লেয়ার ফাংশন (Kick, YouTube ও MP4)
+// =========================================================
 function playVideo(videoSourceUrl, isLiveMatch = false, videoTitle = "Match Video", category = "Sports") {
     titleEl.innerText = videoTitle;
     catEl.innerText = category;
 
-    // 🌟 লাইভ হলে LIVE ব্যাজ, না হলে Video ব্যাজ 🌟
+    // লাইভ হলে LIVE ব্যাজ, না হলে Video ব্যাজ
     if (isLiveMatch) {
         statusBadge.className = "live-tag";
         statusBadge.innerText = "🔴 LIVE";
@@ -117,21 +120,29 @@ function playVideo(videoSourceUrl, isLiveMatch = false, videoTitle = "Match Vide
 
     const ytId = getYouTubeId(videoSourceUrl);
 
-    if (ytId) {
-        // ইউটিউব প্লেয়ার
+    // =======================================================
+    // 👉 ১. ঠিক এইখানে Kick.com এর কোডটি বসবে 👈
+    // =======================================================
+    if (videoSourceUrl && videoSourceUrl.includes("kick.com")) {
+        ytPlayer.src = videoSourceUrl;
+        ytPlayer.classList.remove("hidden");
+        videoPlayer.classList.add("hidden");
+    } 
+    // 👉 ২. যদি ইউটিউব লিংক হয়
+    else if (ytId) {
         ytPlayer.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0`;
         ytPlayer.classList.remove("hidden");
         videoPlayer.classList.add("hidden");
-    } else if (videoSourceUrl) {
-        // MP4 হাই-স্পিড ভিডিও প্লেয়ার
+    } 
+    // 👉 ৩. যদি সাধারণ MP4 ভিডিও হয়
+    else if (videoSourceUrl) {
         videoPlayer.src = videoSourceUrl;
         videoPlayer.load();
-        videoPlayer.play().catch(() => console.log("User click needed to play"));
+        videoPlayer.play().catch(() => console.log("Click play to start"));
         videoPlayer.classList.remove("hidden");
         ytPlayer.classList.add("hidden");
     }
 }
-
 // ----------------------------------------------------
 // ৩. ফায়ারস্টোর থেকে ভিডিও রিয়েল-টাইমে লোড করা
 // ----------------------------------------------------
