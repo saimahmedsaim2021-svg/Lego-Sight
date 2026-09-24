@@ -162,6 +162,7 @@ body {
     padding: 20px 25px;
 }
 
+/* style.css ফাইলের .banner অংশটি এভাবে আপডেট করুন */
 .banner {
     width: 100%;
     height: 350px;
@@ -172,7 +173,10 @@ body {
     justify-content: center;
     position: relative;
     background-size: cover;
-    background-position: center;
+    
+    /* 🌟 এই লাইনটি পরিবর্তন করুন: ওপরের দিক ১০০% ঠিক থাকবে, যা কাটার নিচ থেকে কাটবে 🌟 */
+    background-position: center top !important; 
+    
     background-repeat: no-repeat;
     transition: 0.5s;
 }
