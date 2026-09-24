@@ -105,6 +105,11 @@ function getYouTubeId(url) {
 // =========================================================
 // 🎬 স্মার্ট ভিডিও প্লেয়ার ফাংশন (Kick, YouTube ও MP4)
 // =========================================================
+// =========================================================
+// 🎬 আল্ট্রা-স্মুথ অল-ইন-ওয়ান প্লেয়ার (.m3u8, Kick, YouTube ও MP4)
+// =========================================================
+let hlsInstance = null; // পুরানো স্ট্রিম ক্লিনআপ করার ভেরিয়েবল
+
 function playVideo(videoSourceUrl, isLiveMatch = false, videoTitle = "Match Video", category = "Sports") {
     titleEl.innerText = videoTitle;
     catEl.innerText = category;
@@ -118,29 +123,85 @@ function playVideo(videoSourceUrl, isLiveMatch = false, videoTitle = "Match Vide
         statusBadge.innerText = "🎬 Match Video";
     }
 
+    // আগের কোনো HLS লাইভ চালু থাকলে তা রিমুভ করা
+    if (hlsInstance) {
+        hlsInstance.destroy();
+        hlsInstance = null;
+    }
+
     const ytId = getYouTubeId(videoSourceUrl);
 
     // =======================================================
-    // 👉 ১. ঠিক এইখানে Kick.com এর কোডটি বসবে 👈
+    // 🌟 ১. আপনার প্রাপ্ত HLS (.m3u8) লাইভ স্ট্রিম ইঞ্জিন 🌟
     // =======================================================
-    if (videoSourceUrl && videoSourceUrl.includes("kick.com")) {
+    if (videoSourceUrl && (videoSourceUrl.includes(".m3u8") || videoSourceUrl.includes("m3u8"))) {
+        ytPlayer.classList.add("hidden");
+        videoPlayer.classList.remove("hidden");
+
+        // পিসি, ক্রোম ও অ্যান্ড্রয়েডের জন্য Hls.js ইঞ্জিন
+        if (window.Hls && Hls.isSupported()) {
+            hlsInstance = new Hls({
+                enableWorker: true,
+                lowLatencyMode: true, // লো-লেটেন্সি লাইভ মোড (দেরি হবে না)
+                backBufferLength: 90
+            });
+            hlsInstance.loadSource(videoSourceUrl);
+            hlsInstance.attachMedia(videoPlayer);
+            
+            hlsInstance.on(Hls.Events.MANIFEST_PARSED, function () {
+                videoPlayer.play().catch(() => console.log("Click play button to start live"));
+            });
+
+            // কোনো নেটওয়ার্ক ড্রপ হলে স্বয়ংক্রিয়ভাবে রিকভার করা
+            hlsInstance.on(Hls.Events.ERROR, function (event, data) {
+                if (data.fatal) {
+                    switch (data.type) {
+                        case Hls.ErrorTypes.NETWORK_ERROR:
+                            hlsInstance.startLoad();
+                            break;
+                        case Hls.ErrorTypes.MEDIA_ERROR:
+                            hlsInstance.recoverMediaError();
+                            break;
+                        default:
+                            hlsInstance.destroy();
+                            break;
+                    }
+                }
+            });
+        }
+        // আইফোন / আইপ্যাডের সাফারির জন্য (Native HLS)
+        else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+            videoPlayer.src = videoSourceUrl;
+            videoPlayer.addEventListener('loadedmetadata', function() {
+                videoPlayer.play().catch(() => console.log("Click play button to start"));
+            });
+        }
+    }
+    // =======================================================
+    // 🌟 ২. যদি Kick.com এর ফ্রেম লিংক হয় 🌟
+    // =======================================================
+    else if (videoSourceUrl && videoSourceUrl.includes("kick.com")) {
         ytPlayer.src = videoSourceUrl;
         ytPlayer.classList.remove("hidden");
         videoPlayer.classList.add("hidden");
-    } 
-    // 👉 ২. যদি ইউটিউব লিংক হয়
+    }
+    // =======================================================
+    // 🌟 ৩. যদি ইউটিউব লিংক হয় 🌟
+    // =======================================================
     else if (ytId) {
         ytPlayer.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0`;
         ytPlayer.classList.remove("hidden");
         videoPlayer.classList.add("hidden");
     } 
-    // 👉 ৩. যদি সাধারণ MP4 ভিডিও হয়
+    // =======================================================
+    // 🌟 ৪. সাধারণ MP4 ভিডিও ফাইল 🌟
+    // =======================================================
     else if (videoSourceUrl) {
+        ytPlayer.classList.add("hidden");
+        videoPlayer.classList.remove("hidden");
         videoPlayer.src = videoSourceUrl;
         videoPlayer.load();
-        videoPlayer.play().catch(() => console.log("Click play to start"));
-        videoPlayer.classList.remove("hidden");
-        ytPlayer.classList.add("hidden");
+        videoPlayer.play().catch(() => console.log("Click play button to start"));
     }
 }
 // ----------------------------------------------------
