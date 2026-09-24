@@ -85,7 +85,7 @@
             box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
         }
 
-        /* 🌟 ৩টি দাগের বাটন (ডার্ক মোডে নিয়ন ব্লু আলো হয়ে জ্বলবে) 🌟 */
+        /* 🌟 ৩টি দাগের বাটন (ডার্ক মোডে নিয়ন ব্লু আলো হয়ে জ্বলবে) 🌟 */
         .menu-toggle {
             display: none; /* কম্পিউটারে লুকানো থাকবে */
             flex-direction: column;
@@ -93,7 +93,7 @@
             width: 40px;
             height: 38px;
             background: #1c1c1c !important; /* হালকা বক্স */
-            border: 1.5px solid #0099ff !important; /* নিয়ন ব্লু বর্ডার */
+            border: 1.5px solid #0099ff !important; /* নিয়ন ব্লু বর্ডার */
             border-radius: 8px;
             padding: 8px 7px !important;
             cursor: pointer;
@@ -112,7 +112,7 @@
             display: block !important;
             width: 100% !important;
             height: 3px !important;
-            background-color: #00d2ff !important; /* ইলেকট্রিক নিয়ন স্কাই ব্লু */
+            background-color: #00d2ff !important; /* ইলেকট্রিক নিয়ন স্কাই ব্লু */
             border-radius: 3px !important;
             box-shadow: 0 0 8px #00d2ff !important; /* ডার্ক মোডে ভেসে থাকবে */
             transition: 0.3s ease-in-out;
@@ -138,7 +138,7 @@
             box-shadow: 0 0 8px #ff0000 !important;
         }
 
-        /* মোবাইলে বাটন শো করার নিয়ম */
+        /* মোবাইলে বাটন শো করার নিয়ম */
         @media (max-width: 992px) {
             .menu-toggle {
                 display: flex !important;
@@ -149,14 +149,14 @@
 <body data-page="home">
 
     <!-- Header -->
-   <header class="navbar">
+    <header class="navbar">
         <div class="logo">
             <a href="index.html">
                 <img src="logo.png" alt="Lego Sight" class="site-logo-img" onerror="this.src='https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=100';">
                 <span class="logo-text">Lego <span>Sight</span></span>
             </a>
         </div>
-        
+
         <!-- Navigation Links -->
         <nav class="nav-links" id="navLinks">
             <a href="index.html" class="active-link" style="color: #ff0000;">Home</a>
@@ -164,7 +164,7 @@
             <a href="sports.html">Sports</a>
             <a href="about.html">About</a>
         </nav>
-        
+
         <div class="header-right">
             <!-- Auth Section -->
             <div id="authSection">
@@ -175,7 +175,7 @@
                     <button id="logoutBtn" class="logout-btn" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
                 </div>
             </div>
-            
+
             <!-- 🌟 ডার্ক মোডে স্পষ্টভাবে জ্বলজ্বল করা ৩টি দাগের বাটন 🌟 -->
             <button class="menu-toggle" id="mobileMenuBtn" aria-label="Toggle Menu">
                 <span class="bar"></span>
@@ -271,22 +271,8 @@
     <!-- JS Files -->
     <script type="module" src="script.js"></script>
 
-    <!-- মোবাইল মেনু স্ক্রিপ্ট -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            const toggleBtn = document.getElementById("mobileMenuBtn");
-            const navMenu = document.getElementById("navLinks");
-            
-            if (toggleBtn && navMenu) {
-                toggleBtn.onclick = function() {
-                    navMenu.classList.toggle("active");
-                    toggleBtn.classList.toggle("open"); // ৩ দাগ থেকে লাল 'X' হবে
-                };
-            }
-        });
-    </script>
-     <!-- 🌟 সব পেজের জন্য মাস্টার লগইন লিংক 🌟 -->
-<script type="module" src="auth-modal.js"></script>
-        <script src="header-footer.js"></script>
+    <!-- 🌟 সব পেজের জন্য মাস্টার লগইন লিংক 🌟 -->
+    <script type="module" src="auth-modal.js"></script>
+    <script src="header-footer.js"></script>
 </body>
 </html>
