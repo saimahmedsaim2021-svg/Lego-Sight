@@ -3,25 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Watch - Lego Sight</title>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2110074415950799"
-     crossorigin="anonymous"></script>
-    <script>(function(s){s.dataset.zone='11875309',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+    <title>Watch Live - Lego Sight</title>
+    <!-- CSS ফাইল -->
     <link rel="stylesheet" href="style.css">
+    <!-- আইকন লাইব্রেরি -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- 🌟 HLS .m3u8 লাইভ স্ট্রিম প্লেয়ার লাইব্রেরি 🌟 -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
     <style>
+        /* 🌟 পারফেক্ট ১৬:৯ সিনেমাটিক প্লেয়ার বক্স 🌟 */
         .video-player-wrapper {
             width: 100%;
             aspect-ratio: 16 / 9;
-            background-color: #000;
+            background-color: #000000;
             border-radius: 12px;
             overflow: hidden;
             position: relative;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
-            border: 1px solid #333;
+            border: 1px solid #333333;
         }
 
-        #ytPlayer, #videoPlayer {
+        #videoPlayer, #ytPlayer {
             width: 100%;
             height: 100%;
             position: absolute;
@@ -32,10 +35,42 @@
             object-fit: contain;
         }
 
-        /* ব্যাজ স্টাইল */
+        /* ৩D লোগো ওয়াটারমার্ক */
+        .player-watermark {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 12px;
+            border-radius: 20px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(0, 153, 255, 0.4);
+            pointer-events: none;
+        }
+
+        .player-watermark img {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+        }
+
+        .player-watermark span {
+            font-size: 13px;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .player-watermark span b {
+            color: #00d2ff;
+        }
+
         .live-tag {
             background: #ff0000;
-            color: #fff;
+            color: #ffffff;
             font-size: 11px;
             padding: 3px 8px;
             border-radius: 4px;
@@ -60,13 +95,6 @@
             background: #333 !important;
             color: #aaa !important;
         }
-
-        .auth-warning {
-            color: #ff4d4d;
-            font-size: 13px;
-            margin-top: 8px;
-            display: none;
-        }
     </style>
 </head>
 <body data-page="watch">
@@ -75,7 +103,8 @@
     <header class="navbar">
         <div class="logo">
             <a href="index.html">
-                <i class="fa-solid fa-play-circle"></i> Lego Sight
+                <img src="logo.png" alt="Lego Sight" class="site-logo-img" onerror="this.src='https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=100';">
+                <span class="logo-text">Lego <span>Sight</span></span>
             </a>
         </div>
         <nav class="nav-links" id="navLinks">
@@ -108,28 +137,34 @@
         <!-- বাম পাশ: প্লেয়ার, লাইক ও রিয়েলটাইম কমেন্ট -->
         <section class="main-player-section">
             
-            <!-- স্মার্ট প্লেয়ার স্ক্রিন -->
+            <!-- 🎬 অল-ইন-ওয়ান প্লেয়ার বক্স (.m3u8, YouTube, Kick, MP4) 🎬 -->
             <div class="video-player-wrapper">
-                <!-- ১. ইউটিউব ফ্রেম -->
-                <iframe id="ytPlayer" class="hidden" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
                 
-                <!-- ২. হাই-স্পিড MP4 প্লেয়ার (কন্ট্রোলস, স্পিড, ফুলস্ক্রিন সহ) -->
-                <video id="videoPlayer" class="hidden" controls playsinline preload="auto">
+                <!-- ৩D লোগো ওয়াটারমার্ক -->
+                <div class="player-watermark">
+                    <img src="logo.png" alt="Lego Sight" onerror="this.style.display='none'">
+                    <span>Lego <b>Sight</b></span>
+                </div>
+
+                <!-- ১. ইউটিউব বা কিক ফ্রেম প্লেয়ার -->
+                <iframe id="ytPlayer" style="display: none;" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                
+                <!-- ২. হাই-স্পিড প্লেয়ার (MP4 ও .m3u8 লাইভ এর জন্য) -->
+                <video id="videoPlayer" controls playsinline preload="auto" style="display: block;">
                     Your browser does not support the video tag.
                 </video>
             </div>
 
             <!-- ভিডিও ইনফরমেশন -->
             <div class="video-header-info">
-                <h1 id="currentVideoTitle">Loading Match...</h1>
+                <h1 id="currentVideoTitle">Loading Match Stream...</h1>
                 
                 <div class="video-actions-bar">
                     <div class="channel-info">
                         <i class="fa-solid fa-circle-user fa-2x" style="color: #ff0000;"></i>
                         <div>
-                            <h4 id="videoCategory">---</h4>
-                            <!-- লাইভ হলে LIVE দেখাবে, নাহলে Match Video দেখাবে -->
-                            <span id="statusBadge" class="vod-tag">🎬 Video</span>
+                            <h4 id="videoCategory">Sports Arena</h4>
+                            <span id="statusBadge" class="vod-tag">🎬 Match Video</span>
                         </div>
                         <button class="subscribe-btn" id="subscribeBtn"><i class="fa-solid fa-bell"></i> <span id="subBtnText">Subscribe</span></button>
                     </div>
@@ -150,14 +185,11 @@
             <div class="comments-section">
                 <h3>Comments (<span id="commentCount">0</span>)</h3>
                 
-                <!-- কমেন্ট বক্স -->
                 <div class="comment-input-box">
                     <input type="text" id="commentInput" placeholder="Add a public comment..." />
                     <button id="submitCommentBtn">Comment</button>
                 </div>
-                <p class="auth-warning" id="commentAuthWarning"><i class="fa-solid fa-circle-exclamation"></i> You must login to post a comment.</p>
 
-                <!-- ফায়ারস্টোর থেকে আসল কমেন্টগুলো এসে এখানে সাজবে -->
                 <div class="comments-list" id="commentsList">
                     <p style="color: #666; font-size: 13px;" id="noCommentsMsg">No comments yet. Be the first to comment!</p>
                 </div>
@@ -165,62 +197,325 @@
 
         </section>
 
-        <!-- ডান পাশ: ফায়ারস্টোরের আসল রিলেটেড ভিডিও -->
+        <!-- ডান পাশ: সম্পর্কিত ভিডিও -->
         <aside class="related-videos-section">
-            <h3 class="related-title">Related Videos</h3>
+            <h3 class="related-title">Related Matches</h3>
             <div class="related-list" id="relatedVideosList">
-                <p style="color: #666; font-size: 13px;">Loading related matches...</p>
+                <p style="color: #666; font-size: 13px;">Loading matches...</p>
             </div>
         </aside>
 
     </main>
 
-    <!-- 🌟 লগইন / সাইন-আপ পপআপ মডাল 🌟 -->
-    <div id="loginModal" class="modal-overlay">
-        <div class="modal-box">
-            <button class="close-btn" id="closeModalBtn">&times;</button>
-            <div class="modal-header">
-                <h2 id="modalTitle">Sign In to <span class="highlight">Lego Sight</span></h2>
-                <p id="modalSubtitle">Login to like, comment & subscribe.</p>
+    <!-- ফুটার -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-box">
+                <h2><i class="fa-solid fa-play-circle"></i> Lego Sight</h2>
+                <p>The best platform to watch live sports, gaming, and events seamlessly.</p>
             </div>
-            <div class="modal-body">
-                <form id="authForm">
-                    <input type="text" id="nameInput" placeholder="Full Name" class="auth-input hidden">
-                    <input type="email" id="emailInput" placeholder="Email Address" class="auth-input" required>
-                    <input type="password" id="passwordInput" placeholder="Password" class="auth-input" required>
-                    <button type="submit" class="submit-btn" id="authSubmitBtn">Sign In</button>
-                </form>
-                <div class="toggle-auth">
-                    <span id="toggleText">Don't have an account? </span>
-                    <a href="#" id="toggleAuthMode">Sign Up</a>
-                </div>
-                <div class="divider">or</div>
-                <button class="google-btn" id="googleLoginBtn">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google">
-                    Continue with Google
-                </button>
+            <div class="footer-box">
+                <h2>Quick Links</h2>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div class="footer-box">
+                <h2>Contact Us</h2>
+                <p><i class="fa-solid fa-phone"></i> <span id="footerPhone">Loading...</span></p>
+                <p><i class="fa-brands fa-whatsapp" style="color: #25D366;"></i> <span id="footerWhatsapp">Loading...</span></p>
+                <p><i class="fa-solid fa-envelope" style="color: #ea4335;"></i> <span id="footerEmail">Loading...</span></p>
             </div>
         </div>
-    </div>
+        <div class="footer-bottom">
+            &copy; 2026 Lego Sight. All rights reserved.
+        </div>
+    </footer>
 
-    <!-- JS Logic -->
-    <script type="module" src="watch.js"></script>
+    <!-- মাস্টার অথ স্ক্রিপ্ট (লগইন পপআপ) -->
+    <script type="module" src="auth-modal.js"></script>
 
-    <!-- মোবাইল মেনু স্ক্রিপ্ট -->
-    <script>
-        const menuBtn = document.getElementById("mobileMenuBtn");
-        const navLinks = document.getElementById("navLinks");
-        if (menuBtn && navLinks) {
-            menuBtn.onclick = function(e) {
-                e.stopPropagation();
-                navLinks.classList.toggle("active");
-                menuBtn.classList.toggle("open");
-            };
+    <!-- ========================================================= -->
+    <!-- 🌟 সম্পূর্ণ ওয়াচ ইঞ্জিন (সব কোড এক জায়গায় - নো ফাইল মিসিং) 🌟 -->
+    <!-- ========================================================= -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { 
+            getFirestore, doc, getDoc, collection, getDocs, 
+            addDoc, updateDoc, arrayUnion, arrayRemove, onSnapshot, query, orderBy, serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // আপনার ফায়ারবেস কনফিগ
+        const firebaseConfig = {
+            apiKey: "AIzaSyDWugLg2G3Bvo5q6vPxIdGUUdKH1W0NenE",
+            authDomain: "lego-sight.firebaseapp.com",
+            projectId: "lego-sight",
+            storageBucket: "lego-sight.firebasestorage.app",
+            messagingSenderId: "417663931445",
+            appId: "1:417663931445:web:270748ca31cb2912cb4d7c",
+            measurementId: "G-KREWWFSZZ2"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const videoPlayer = document.getElementById("videoPlayer");
+        const ytPlayer = document.getElementById("ytPlayer");
+        const titleEl = document.getElementById("currentVideoTitle");
+        const catEl = document.getElementById("videoCategory");
+        const statusBadge = document.getElementById("statusBadge");
+        const likeBtn = document.getElementById("likeBtn");
+        const likeCount = document.getElementById("likeCount");
+        const subscribeBtn = document.getElementById("subscribeBtn");
+        const subBtnText = document.getElementById("subBtnText");
+        const commentInput = document.getElementById("commentInput");
+        const submitCommentBtn = document.getElementById("submitCommentBtn");
+        const commentsList = document.getElementById("commentsList");
+        const commentCount = document.getElementById("commentCount");
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const videoId = urlParams.get('id');       // ফায়ারস্টোর ডক আইডি
+        const directSrc = urlParams.get('src');   // সরাসরি .m3u8 বা লিংক
+        const ytParam = urlParams.get('yt');       // সরাসরি ইউটিউব আইডি
+
+        let currentUser = null;
+        let currentVideoData = null;
+        let hlsInstance = null;
+
+        // অথ স্টেট ট্র্যাকিং
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            updateLikeUI();
+        });
+
+        // ইউটিউব আইডি চেকার
+        function getYouTubeId(url) {
+            if (!url) return null;
+            if (url.length === 11 && !url.includes('/') && !url.includes('.')) return url;
+            const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+            return (match && match[2].length === 11) ? match[2] : null;
         }
+
+        // =========================================================
+        // 🎬 ১০০% নিশ্চয়তা সহ প্লেয়ার লোডার ফাংশন (.m3u8 / YT / Kick / MP4)
+        // =========================================================
+        function startPlayback(streamUrl, title = "Match Stream", category = "Sports", isLive = false) {
+            if (!streamUrl) return;
+
+            titleEl.innerText = title;
+            catEl.innerText = category;
+
+            // লাইভ হলে LIVE ব্যাজ, নাহলে Match Video
+            if (isLive) {
+                statusBadge.className = "live-tag";
+                statusBadge.innerText = "🔴 LIVE";
+            } else {
+                statusBadge.className = "vod-tag";
+                statusBadge.innerText = "🎬 Match Video";
+            }
+
+            // আগের HLS থাকলে বন্ধ করা
+            if (hlsInstance) {
+                hlsInstance.destroy();
+                hlsInstance = null;
+            }
+
+            // ১. Kick.com লাইভ ফ্রেম
+            if (streamUrl.includes("kick.com")) {
+                videoPlayer.style.display = "none";
+                ytPlayer.style.display = "block";
+                ytPlayer.src = streamUrl;
+                return;
+            }
+
+            // ২. ইউটিউব ভিডিও
+            const ytId = getYouTubeId(streamUrl);
+            if (ytId) {
+                videoPlayer.style.display = "none";
+                ytPlayer.style.display = "block";
+                ytPlayer.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0`;
+                return;
+            }
+
+            // ৩. HLS (.m3u8) ও MP4 ভিডিও প্লেয়ার
+            ytPlayer.style.display = "none";
+            videoPlayer.style.display = "block";
+
+            // যদি .m3u8 লাইভ স্ট্রিম হয়
+            if (streamUrl.includes(".m3u8") || streamUrl.includes("m3u8")) {
+                if (window.Hls && Hls.isSupported()) {
+                    hlsInstance = new Hls({
+                        enableWorker: true,
+                        lowLatencyMode: true
+                    });
+                    hlsInstance.loadSource(streamUrl);
+                    hlsInstance.attachMedia(videoPlayer);
+                    hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
+                        videoPlayer.play().catch(() => {});
+                    });
+                } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                    videoPlayer.src = streamUrl;
+                    videoPlayer.play().catch(() => {});
+                }
+            } else {
+                // সাধারণ MP4 ফাইল
+                videoPlayer.src = streamUrl;
+                videoPlayer.load();
+                videoPlayer.play().catch(() => {});
+            }
+        }
+
+        // =========================================================
+        // ডেটাবেস থেকে ডাটা রিড করা
+        // =========================================================
+        if (videoId) {
+            // ফায়ারস্টোরের আইডি থাকলে সরাসরি ফায়ারস্টোর থেকে আনবে
+            onSnapshot(doc(db, "videos", videoId), (docSnap) => {
+                if (docSnap.exists()) {
+                    currentVideoData = docSnap.data();
+                    startPlayback(
+                        currentVideoData.videoLink,
+                        currentVideoData.title,
+                        currentVideoData.category,
+                        currentVideoData.isLive || false
+                    );
+
+                    const likesArr = currentVideoData.likedBy || [];
+                    likeCount.innerText = likesArr.length;
+                    updateLikeUI();
+
+                    loadRelatedVideos(currentVideoData.category, videoId);
+                } else {
+                    titleEl.innerText = "Match not found in database!";
+                }
+            });
+
+            listenComments(videoId);
+        } else {
+            // সরাসরি লিংকে টেস্ট করলে
+            const activeUrl = ytParam ? `https://www.youtube.com/watch?v=${ytParam}` : directSrc;
+            const testTitle = urlParams.get('title') || "Live Match Stream";
+            const testCat = urlParams.get('cat') || "Football";
+            startPlayback(activeUrl, decodeURIComponent(testTitle), decodeURIComponent(testCat), true);
+        }
+
+        // =========================================================
+        // লাইক, কমেন্ট ও রিলেটেড ভিডিও লজিক
+        // =========================================================
+        function updateLikeUI() {
+            if (currentVideoData && currentUser) {
+                const likedBy = currentVideoData.likedBy || [];
+                if (likedBy.includes(currentUser.uid)) {
+                    likeBtn.classList.add("active");
+                } else {
+                    likeBtn.classList.remove("active");
+                }
+            }
+        }
+
+        likeBtn.onclick = async () => {
+            if (!currentUser) {
+                document.getElementById("loginModal").classList.add("active");
+                return;
+            }
+            if (!videoId || !currentVideoData) return;
+
+            const videoRef = doc(db, "videos", videoId);
+            const likedBy = currentVideoData.likedBy || [];
+
+            if (likedBy.includes(currentUser.uid)) {
+                await updateDoc(videoRef, { likedBy: arrayRemove(currentUser.uid) });
+            } else {
+                await updateDoc(videoRef, { likedBy: arrayUnion(currentUser.uid) });
+            }
+        };
+
+        let isSub = false;
+        subscribeBtn.onclick = () => {
+            if (!currentUser) {
+                document.getElementById("loginModal").classList.add("active");
+                return;
+            }
+            isSub = !isSub;
+            subscribeBtn.classList.toggle("subscribed", isSub);
+            subBtnText.innerText = isSub ? "Subscribed" : "Subscribe";
+        };
+
+        function listenComments(vId) {
+            const q = query(collection(db, "videos", vId, "comments"), orderBy("createdAt", "desc"));
+            onSnapshot(q, (snapshot) => {
+                commentCount.innerText = snapshot.size;
+                commentsList.innerHTML = "";
+                if (snapshot.empty) {
+                    commentsList.innerHTML = `<p style="color: #666; font-size: 13px;">No comments yet. Be the first to comment!</p>`;
+                    return;
+                }
+                snapshot.forEach(d => {
+                    const c = d.data();
+                    const div = document.createElement("div");
+                    div.className = "single-comment";
+                    div.innerHTML = `
+                        <i class="fa-solid fa-circle-user" style="color: #ff0000; font-size: 22px;"></i>
+                        <div>
+                            <h5>${c.userName}</h5>
+                            <p>${c.text}</p>
+                        </div>
+                    `;
+                    commentsList.appendChild(div);
+                });
+            });
+        }
+
+        submitCommentBtn.onclick = async () => {
+            if (!currentUser) {
+                document.getElementById("loginModal").classList.add("active");
+                return;
+            }
+            const text = commentInput.value.trim();
+            if (!text || !videoId) return;
+
+            await addDoc(collection(db, "videos", videoId, "comments"), {
+                userId: currentUser.uid,
+                userName: currentUser.displayName || currentUser.email.split("@")[0],
+                text: text,
+                createdAt: serverTimestamp()
+            });
+            commentInput.value = "";
+        };
+
+        async function loadRelatedVideos(cat, curId) {
+            const relatedContainer = document.getElementById("relatedVideosList");
+            try {
+                const snap = await getDocs(collection(db, "videos"));
+                relatedContainer.innerHTML = "";
+                let count = 0;
+                snap.forEach(d => {
+                    const v = d.data();
+                    if (d.id !== curId && v.category === cat) {
+                        count++;
+                        const card = `
+                            <a href="watch.html?id=${d.id}" class="related-card" style="position: relative;">
+                                <img src="${v.thumbnailUrl || 'logo.png'}" alt="Thumbnail">
+                                <div class="related-info">
+                                    <h4>${v.title}</h4>
+                                    <span>${v.category} • ${v.isLive ? '🔴 LIVE' : 'Match Video'}</span>
+                                </div>
+                            </a>
+                        `;
+                        relatedContainer.innerHTML += card;
+                    }
+                });
+                if (count === 0) relatedContainer.innerHTML = `<p style="color: #666; font-size: 13px;">No other matches found.</p>`;
+            } catch(e) {}
+        }
+
+        document.getElementById("shareBtn").onclick = () => {
+            navigator.clipboard.writeText(window.location.href);
+            alert("Match link copied to clipboard!");
+        };
     </script>
 </body>
-<!-- 🌟 সব পেজের জন্য মাস্টার লগইন লিংক 🌟 -->
-<script type="module" src="auth-modal.js"></script>
-    <!-- HLS .m3u8 লাইভ স্ট্রিম প্লেয়ার লাইব্রেরি -->
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 </html>
