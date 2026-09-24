@@ -28,8 +28,12 @@
             object-fit: cover;
             border-radius: 50%;
             border: 2px solid #0099ff;
-            box-shadow: 0 0 15px rgba(0, 153, 255, 0.6);
-            transition: transform 0.3s ease;
+            box-shadow: 0 0 12px rgba(0, 153, 255, 0.45), 0 2px 6px rgba(0, 0, 0, 0.25);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .logo a:hover .site-logo-img {
+            box-shadow: 0 0 18px rgba(0, 153, 255, 0.7), 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         .logo a:hover .site-logo-img {
@@ -51,7 +55,7 @@
 
         .cat-btn {
             position: relative;
-            background: #1f1f1f;
+            background: linear-gradient(180deg, #242424 0%, #1a1a1a 100%);
             color: #ffffff;
             border: 1px solid #333333;
             padding: 10px 24px;
@@ -62,12 +66,13 @@
             user-select: none;
             outline: none;
             overflow: hidden;
-            transition: transform 0.15s ease, background 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.15s ease, background 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
         }
 
         .cat-btn:hover {
             border-color: #ff0000;
             color: #ffffff;
+            box-shadow: 0 2px 10px rgba(255, 0, 0, 0.2);
         }
 
         .cat-btn:active {
@@ -79,10 +84,10 @@
         }
 
         .cat-btn.active {
-            background: #ff0000;
+            background: linear-gradient(180deg, #ff2b2b 0%, #e00000 100%);
             border-color: #ff0000;
             color: #ffffff;
-            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.4);
+            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.35);
         }
 
         /* 🌟 ৩টি দাগের বাটন (ডার্ক মোডে নিয়ন ব্লু আলো হয়ে জ্বলবে) 🌟 */
@@ -271,6 +276,20 @@
     <!-- JS Files -->
     <script type="module" src="script.js"></script>
 
+    <!-- মোবাইল মেনু স্ক্রিপ্ট -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const toggleBtn = document.getElementById("mobileMenuBtn");
+            const navMenu = document.getElementById("navLinks");
+
+            if (toggleBtn && navMenu) {
+                toggleBtn.onclick = function() {
+                    navMenu.classList.toggle("active");
+                    toggleBtn.classList.toggle("open"); // ৩ দাগ থেকে লাল 'X' হবে
+                };
+            }
+        });
+    </script>
     <!-- 🌟 সব পেজের জন্য মাস্টার লগইন লিংক 🌟 -->
     <script type="module" src="auth-modal.js"></script>
     <script src="header-footer.js"></script>
