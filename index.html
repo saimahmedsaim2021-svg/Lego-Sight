@@ -149,6 +149,55 @@
                 display: flex !important;
             }
         }
+
+        /* 🔍 সার্চ বক্স ডিজাইন (ছোট ও মডার্ন) */
+        .search-section {
+            display: flex;
+            justify-content: center;
+            padding: 18px 20px 0;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 420px;
+            background: linear-gradient(180deg, #1f1f1f 0%, #171717 100%);
+            border: 1px solid #333333;
+            border-radius: 25px;
+            padding: 9px 18px;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .search-box:focus-within {
+            border-color: #0099ff;
+            box-shadow: 0 0 12px rgba(0, 153, 255, 0.35);
+        }
+
+        .search-box i {
+            color: #888888;
+            font-size: 14px;
+        }
+
+        .search-box input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .search-box input::placeholder {
+            color: #888888;
+        }
+
+        /* সার্চে না মিললে ভিডিও কার্ড লুকানো থাকবে */
+        .video-grid [data-search-hidden="true"] {
+            display: none !important;
+        }
     </style>
 </head>
 <body data-page="home">
@@ -201,6 +250,14 @@
                     <i class="fa-solid fa-play"></i> <span id="bannerBtnText">Watch Live</span>
                 </a>
             </div>
+        </div>
+    </section>
+
+    <!-- 🔍 সার্চ বক্স -->
+    <section class="search-section">
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="videoSearchInput" placeholder="ভিডিও খুঁজুন..." autocomplete="off">
         </div>
     </section>
 
@@ -290,6 +347,35 @@
             }
         });
     </script>
+    <!-- 🔍 লাইভ সার্চ স্ক্রিপ্ট: টাইপ করার সাথে সাথে ভিডিও ফিল্টার হবে -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const searchInput = document.getElementById("videoSearchInput");
+            const videoGrid = document.getElementById("videoGrid");
+            if (!searchInput || !videoGrid) return;
+
+            function filterVideos() {
+                const query = searchInput.value.trim().toLowerCase();
+                const cards = videoGrid.children;
+                for (let i = 0; i < cards.length; i++) {
+                    const card = cards[i];
+                    const text = card.textContent.toLowerCase();
+                    if (query === "" || text.includes(query)) {
+                        card.removeAttribute("data-search-hidden");
+                    } else {
+                        card.setAttribute("data-search-hidden", "true");
+                    }
+                }
+            }
+
+            searchInput.addEventListener("input", filterVideos);
+
+            // ভিডিও গ্রিড script.js দিয়ে পরে লোড হলেও যেন সার্চ কাজ করে
+            const gridObserver = new MutationObserver(filterVideos);
+            gridObserver.observe(videoGrid, { childList: true });
+        });
+    </script>
+
     <!-- 🌟 সব পেজের জন্য মাস্টার লগইন লিংক 🌟 -->
     <script type="module" src="auth-modal.js"></script>
     <script src="header-footer.js"></script>
