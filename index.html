@@ -4,203 +4,511 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lego Sight - Live Sports & Events</title>
+    <meta name="description" content="Lego Sight — watch live sports, football, cricket & gaming streams in one place.">
+    <meta name="theme-color" content="#0A0D12">
+    <meta property="og:title" content="Lego Sight - Live Sports & Events">
+    <meta property="og:description" content="Watch live sports, football, cricket & gaming streams in one place.">
+    <meta property="og:type" content="website">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔴</text></svg>">
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2110074415950799"
      crossorigin="anonymous"></script>
-    <script>(function(s){s.dataset.zone='11875309',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Hind+Siliguri:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* 🌟 লোগো ডিজাইন 🌟 */
+        /* ============================================================
+           LEGO SIGHT — design refresh
+           All original ids/classes kept exactly as-is for script.js /
+           auth-modal.js / header-footer.js to keep working unchanged.
+           ============================================================ */
+
+        :root{
+            --bg:            #0A0D12;
+            --bg-raised:     #12161D;
+            --bg-card:       #151A22;
+            --line:          #232A35;
+            --text:          #EDF1F5;
+            --text-dim:      #93A0B2;
+            --accent-blue:   #00D2FF;
+            --accent-blue-deep: #0099FF;
+            --live-red:      #FF3B4E;
+            --amber:         #FFB020;
+            --font-display:  'Barlow Condensed', 'Hind Siliguri', sans-serif;
+            --font-body:     'Hind Siliguri', 'Barlow Condensed', sans-serif;
+        }
+
+        *{ box-sizing:border-box; }
+
+        body{
+            background: var(--bg) !important;
+            color: var(--text) !important;
+            font-family: var(--font-body) !important;
+        }
+
+        /* ---------- Header ---------- */
+        .navbar{
+            background: rgba(10,13,18,0.85) !important;
+            backdrop-filter: blur(14px) saturate(140%);
+            border-bottom: 1px solid var(--line) !important;
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+
         .logo a {
             display: flex;
             align-items: center;
             gap: 10px;
             text-decoration: none;
-            color: #ffffff;
-            font-size: 24px;
-            font-weight: 800;
-            letter-spacing: 0.5px;
+            color: var(--text);
+            font-family: var(--font-display);
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 0.3px;
         }
 
         .site-logo-img {
-            width: 44px;
-            height: 44px;
+            width: 42px;
+            height: 42px;
             object-fit: cover;
             border-radius: 50%;
-            border: 2px solid #0099ff;
-            box-shadow: 0 0 12px rgba(0, 153, 255, 0.45), 0 2px 6px rgba(0, 0, 0, 0.25);
+            border: 2px solid var(--accent-blue-deep);
+            box-shadow: 0 0 14px rgba(0, 153, 255, 0.45);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .logo a:hover .site-logo-img {
-            box-shadow: 0 0 18px rgba(0, 153, 255, 0.7), 0 2px 8px rgba(0, 0, 0, 0.3);
-        }
-
-        .logo a:hover .site-logo-img {
             transform: rotate(15deg) scale(1.08);
+            box-shadow: 0 0 20px rgba(0, 153, 255, 0.75);
         }
 
-        .logo-text span {
-            color: #0099ff;
-        }
+        .logo-text span { color: var(--accent-blue); }
 
-        /* 💥 ক্যাটাগরি বাটনের স্ম্যাশ ও স্প্ল্যাশ ইফেক্ট 💥 */
-        .categories {
+        .nav-links{
             display: flex;
-            justify-content: center;
-            gap: 12px;
-            padding: 20px 25px;
-            flex-wrap: wrap;
+            gap: 28px;
         }
-
-        .cat-btn {
-            position: relative;
-            background: linear-gradient(180deg, #242424 0%, #1a1a1a 100%);
-            color: #ffffff;
-            border: 1px solid #333333;
-            padding: 10px 24px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 15px;
+        .nav-links a{
+            font-family: var(--font-display);
+            font-size: 17px;
             font-weight: 600;
-            user-select: none;
-            outline: none;
-            overflow: hidden;
-            transition: transform 0.15s ease, background 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+            letter-spacing: 0.3px;
+            color: var(--text-dim) !important;
+            text-decoration: none;
+            padding: 6px 2px;
+            position: relative;
+            transition: color 0.2s ease;
+        }
+        .nav-links a::after{
+            content:"";
+            position:absolute;
+            left:0; bottom:-4px;
+            width:0; height:2px;
+            background: var(--live-red);
+            transition: width 0.25s ease;
+        }
+        .nav-links a:hover{ color: var(--text) !important; }
+        .nav-links a:hover::after,
+        .nav-links a.active-link::after{ width:100%; }
+        .nav-links a.active-link{ color: var(--live-red) !important; }
+
+        .login-btn{
+            background: linear-gradient(135deg, var(--accent-blue-deep), var(--accent-blue)) !important;
+            color:#04121A !important;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 15px;
+            letter-spacing: 0.3px;
+            border:none !important;
+            padding: 9px 22px !important;
+            border-radius: 24px !important;
+            cursor:pointer;
+            box-shadow: 0 4px 16px rgba(0,153,255,0.35);
+            transition: transform 0.15s ease, box-shadow 0.2s ease;
+        }
+        .login-btn:hover{
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(0,153,255,0.5);
         }
 
-        .cat-btn:hover {
-            border-color: #ff0000;
-            color: #ffffff;
-            box-shadow: 0 2px 10px rgba(255, 0, 0, 0.2);
-        }
-
-        .cat-btn:active {
-            transform: scale(0.88);
-            background: #ff0000 !important;
-            border-color: #ff0000 !important;
-            color: #ffffff !important;
-            box-shadow: 0 0 25px #ff0000, 0 0 50px rgba(255, 0, 0, 0.8) !important;
-        }
-
-        .cat-btn.active {
-            background: linear-gradient(180deg, #ff2b2b 0%, #e00000 100%);
-            border-color: #ff0000;
-            color: #ffffff;
-            box-shadow: 0 4px 15px rgba(255, 0, 0, 0.35);
-        }
-
-        /* 🌟 ৩টি দাগের বাটন (ডার্ক মোডে নিয়ন ব্লু আলো হয়ে জ্বলবে) 🌟 */
         .menu-toggle {
-            display: none; /* কম্পিউটারে লুকানো থাকবে */
+            display: none;
             flex-direction: column;
             justify-content: space-between;
             width: 40px;
             height: 38px;
-            background: #1c1c1c !important; /* হালকা বক্স */
-            border: 1.5px solid #0099ff !important; /* নিয়ন ব্লু বর্ডার */
+            background: var(--bg-raised) !important;
+            border: 1.5px solid var(--accent-blue-deep) !important;
             border-radius: 8px;
             padding: 8px 7px !important;
             cursor: pointer;
             z-index: 10002;
-            box-shadow: 0 0 12px rgba(0, 153, 255, 0.35); /* ডার্ক মোডে গ্লো */
+            box-shadow: 0 0 12px rgba(0, 153, 255, 0.35);
             transition: all 0.3s ease;
         }
-
-        .menu-toggle:hover {
-            background: #252525 !important;
+        .menu-toggle:hover{
+            background:#181f29 !important;
             box-shadow: 0 0 18px rgba(0, 153, 255, 0.7);
         }
-
-        /* ৩টি স্পষ্ট উজ্জ্বল দাগ */
         .menu-toggle .bar {
             display: block !important;
             width: 100% !important;
             height: 3px !important;
-            background-color: #00d2ff !important; /* ইলেকট্রিক নিয়ন স্কাই ব্লু */
+            background-color: var(--accent-blue) !important;
             border-radius: 3px !important;
-            box-shadow: 0 0 8px #00d2ff !important; /* ডার্ক মোডে ভেসে থাকবে */
+            box-shadow: 0 0 8px var(--accent-blue) !important;
             transition: 0.3s ease-in-out;
         }
+        .menu-toggle.open { border-color: var(--live-red) !important; box-shadow: 0 0 15px rgba(255,59,78,0.6); }
+        .menu-toggle.open .bar:nth-child(1){ transform: translateY(7px) rotate(45deg); background-color: var(--live-red) !important; box-shadow: 0 0 8px var(--live-red) !important; }
+        .menu-toggle.open .bar:nth-child(2){ opacity: 0; }
+        .menu-toggle.open .bar:nth-child(3){ transform: translateY(-7px) rotate(-45deg); background-color: var(--live-red) !important; box-shadow: 0 0 8px var(--live-red) !important; }
 
-        /* ক্লিক করলে ৩ দাগ লাল রঙের 'X' হবে */
-        .menu-toggle.open {
-            border-color: #ff0000 !important;
-            box-shadow: 0 0 15px rgba(255, 0, 0, 0.6);
-        }
-
-        .menu-toggle.open .bar:nth-child(1) {
-            transform: translateY(7px) rotate(45deg);
-            background-color: #ff0000 !important;
-            box-shadow: 0 0 8px #ff0000 !important;
-        }
-        .menu-toggle.open .bar:nth-child(2) {
-            opacity: 0;
-        }
-        .menu-toggle.open .bar:nth-child(3) {
-            transform: translateY(-7px) rotate(-45deg);
-            background-color: #ff0000 !important;
-            box-shadow: 0 0 8px #ff0000 !important;
-        }
-
-        /* মোবাইলে বাটন শো করার নিয়ম */
         @media (max-width: 992px) {
-            .menu-toggle {
-                display: flex !important;
+            .menu-toggle { display: flex !important; }
+            .nav-links{
+                position: fixed;
+                top: 68px; right: 0;
+                flex-direction: column;
+                background: var(--bg-raised);
+                border-left: 1px solid var(--line);
+                border-bottom: 1px solid var(--line);
+                width: 220px;
+                padding: 18px;
+                gap: 18px;
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
             }
+            .nav-links.active{ transform: translateX(0); }
         }
 
-        /* 🔍 সার্চ বক্স ডিজাইন (ছোট ও মডার্ন) */
-        .search-section {
-            display: flex;
-            justify-content: center;
-            padding: 18px 20px 0;
+        /* ---------- Banner ---------- */
+        .banner-section{ padding: 22px 20px 0; }
+        .banner{
+            position: relative;
+            border-radius: 18px;
+            overflow: hidden;
+            min-height: 300px;
+            display:flex; align-items:flex-end;
+            background:
+                linear-gradient(180deg, rgba(10,13,18,0.15) 0%, rgba(10,13,18,0.95) 88%),
+                radial-gradient(circle at 15% 20%, rgba(0,153,255,0.35), transparent 45%),
+                linear-gradient(135deg, #10151d 0%, #0a0d12 70%);
+            border: 1px solid var(--line);
+        }
+        .banner::before{
+            content:"";
+            position:absolute; inset:0;
+            background-image: repeating-linear-gradient(115deg, rgba(255,255,255,0.025) 0 2px, transparent 2px 26px);
+            pointer-events:none;
+        }
+        .banner-text{ position:relative; padding: 32px clamp(20px,4vw,48px); max-width: 620px; }
+        .live-pulse{
+            display:inline-flex; align-items:center; gap:6px;
+            background: rgba(255,59,78,0.14);
+            color: var(--live-red);
+            border: 1px solid rgba(255,59,78,0.4);
+            font-family: var(--font-display);
+            font-weight:700; font-size:13px; letter-spacing:0.5px;
+            padding: 5px 12px; border-radius: 20px;
+            animation: pulseGlow 1.8s ease-in-out infinite;
+        }
+        @keyframes pulseGlow{
+            0%,100%{ box-shadow: 0 0 0 rgba(255,59,78,0.5); }
+            50%{ box-shadow: 0 0 14px rgba(255,59,78,0.6); }
+        }
+        #bannerTitle{
+            font-family: var(--font-display);
+            font-size: clamp(30px, 4.4vw, 48px);
+            font-weight: 700;
+            line-height: 1.08;
+            margin: 14px 0 8px;
+            color: var(--text);
+        }
+        #bannerSubtitle{
+            color: var(--text-dim);
+            font-size: 16px;
+            line-height:1.5;
+            margin-bottom: 20px;
+        }
+        .banner-play-btn{
+            display:inline-flex; align-items:center; gap:10px;
+            background: var(--text);
+            color: #0A0D12;
+            font-family: var(--font-display);
+            font-weight:700; font-size:17px; letter-spacing:0.3px;
+            padding: 12px 26px;
+            border-radius: 30px;
+            text-decoration:none;
+            transition: transform 0.15s ease, background 0.2s ease;
+        }
+        .banner-play-btn:hover{ background: var(--accent-blue); transform: translateY(-2px); }
+        .banner-play-btn i{ font-size:13px; }
+
+        /* ---------- Search ---------- */
+        .search-section{ padding: 20px 20px 0; }
+        .search-box{
+            background: var(--bg-raised) !important;
+            border: 1px solid var(--line) !important;
+            border-radius: 26px !important;
+            padding: 10px 20px !important;
+            max-width: 440px;
+        }
+        .search-box:focus-within{
+            border-color: var(--accent-blue) !important;
+            box-shadow: 0 0 0 3px rgba(0,153,255,0.12);
+        }
+        .search-box i{ color: var(--text-dim) !important; }
+        .search-box input{ color: var(--text) !important; font-family: var(--font-body); }
+        .search-box input::placeholder{ color: var(--text-dim) !important; }
+
+        /* ---------- Categories ---------- */
+        .categories{ padding: 18px 20px 24px; gap: 10px; }
+        .cat-btn {
+            font-family: var(--font-display);
+            letter-spacing:0.3px;
+            background: var(--bg-card) !important;
+            color: var(--text) !important;
+            border: 1px solid var(--line) !important;
+            padding: 9px 22px !important;
+            border-radius: 24px !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+        }
+        .cat-btn:hover{ border-color: var(--live-red) !important; box-shadow: 0 2px 12px rgba(255,59,78,0.18); }
+        .cat-btn:active{
+            transform: scale(0.9);
+            background: var(--live-red) !important;
+            border-color: var(--live-red) !important;
+            box-shadow: 0 0 24px rgba(255,59,78,0.6) !important;
+        }
+        .cat-btn.active{
+            background: linear-gradient(135deg, #ff5468, var(--live-red)) !important;
+            border-color: var(--live-red) !important;
+            box-shadow: 0 4px 16px rgba(255,59,78,0.35);
+        }
+        .cat-btn.live-btn{ border-color: rgba(255,59,78,0.5) !important; color: var(--live-red) !important; }
+
+        /* ---------- Video grid ---------- */
+        .video-section{ padding: 6px 20px 40px; }
+        .section-title{
+            font-family: var(--font-display);
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing:0.2px;
+            margin: 6px 0 18px;
+            padding-left: 2px;
+            border-left: 4px solid var(--live-red);
+            padding-left: 12px;
+        }
+        .video-grid{
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 18px;
+        }
+        .video-grid > *{
+            background: var(--bg-card) !important;
+            border: 1px solid var(--line) !important;
+            border-radius: 14px !important;
+            overflow: hidden;
+            transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+        }
+        .video-grid > *:hover{
+            transform: translateY(-4px);
+            border-color: var(--accent-blue-deep) !important;
+            box-shadow: 0 10px 26px rgba(0,0,0,0.45), 0 0 0 1px rgba(0,153,255,0.15);
         }
 
-        .search-box {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            width: 100%;
-            max-width: 420px;
-            background: linear-gradient(180deg, #1f1f1f 0%, #171717 100%);
-            border: 1px solid #333333;
-            border-radius: 25px;
-            padding: 9px 18px;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        /* ---------- Footer ---------- */
+        .footer{
+            background: var(--bg-raised) !important;
+            border-top: 1px solid var(--line) !important;
+        }
+        .footer-box h2{
+            font-family: var(--font-display);
+            font-size: 19px;
+            font-weight:700;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+        .footer-box p, .footer-box li, .footer-box a{
+            color: var(--text-dim) !important;
+            text-decoration:none;
+        }
+        .footer-box a:hover{ color: var(--accent-blue) !important; }
+        .footer-bottom{
+            border-top: 1px solid var(--line);
+            color: var(--text-dim) !important;
+            font-size: 13px;
         }
 
-        .search-box:focus-within {
-            border-color: #0099ff;
-            box-shadow: 0 0 12px rgba(0, 153, 255, 0.35);
+        /* ---------- Modal ---------- */
+        .modal-overlay{ background: rgba(6,8,11,0.72) !important; backdrop-filter: blur(6px); }
+        .modal-box{
+            background: var(--bg-raised) !important;
+            border: 1px solid var(--line) !important;
+            border-radius: 18px !important;
         }
-
-        .search-box i {
-            color: #888888;
-            font-size: 14px;
+        .modal-header h2{ font-family: var(--font-display); color: var(--text); }
+        .modal-header .highlight{ color: var(--accent-blue); }
+        .modal-header p{ color: var(--text-dim) !important; }
+        .auth-input{
+            background: var(--bg-card) !important;
+            border: 1px solid var(--line) !important;
+            color: var(--text) !important;
+            border-radius: 10px !important;
         }
-
-        .search-box input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            outline: none;
-            color: #ffffff;
-            font-size: 14px;
-            font-weight: 500;
+        .auth-input:focus{ border-color: var(--accent-blue) !important; outline:none; }
+        .submit-btn{
+            background: linear-gradient(135deg, var(--accent-blue-deep), var(--accent-blue)) !important;
+            color:#04121A !important;
+            font-family: var(--font-display);
+            font-weight:700 !important;
+            border-radius: 10px !important;
         }
-
-        .search-box input::placeholder {
-            color: #888888;
+        .toggle-auth{ color: var(--text-dim) !important; }
+        .toggle-auth a{ color: var(--accent-blue) !important; }
+        .divider{ color: var(--text-dim) !important; }
+        .google-btn{
+            background: var(--bg-card) !important;
+            border: 1px solid var(--line) !important;
+            color: var(--text) !important;
+            border-radius: 10px !important;
         }
 
         /* সার্চে না মিললে ভিডিও কার্ড লুকানো থাকবে */
-        .video-grid [data-search-hidden="true"] {
-            display: none !important;
+        .video-grid [data-search-hidden="true"] { display: none !important; }
+
+        /* ============================================================
+           NEW FEATURES
+           ============================================================ */
+
+        /* ---------- Light theme (toggle) ---------- */
+        :root[data-theme="light"]{
+            --bg:            #F5F7FA;
+            --bg-raised:     #FFFFFF;
+            --bg-card:       #FFFFFF;
+            --line:          #E1E6ED;
+            --text:          #12161D;
+            --text-dim:      #5B6472;
+        }
+        :root[data-theme="light"] .login-btn,
+        :root[data-theme="light"] .submit-btn{ color:#fff !important; }
+        :root[data-theme="light"] .banner{
+            background:
+                linear-gradient(180deg, rgba(245,247,250,0.1) 0%, rgba(245,247,250,0.96) 88%),
+                radial-gradient(circle at 15% 20%, rgba(0,153,255,0.18), transparent 45%),
+                linear-gradient(135deg, #eef2f7 0%, #f5f7fa 70%);
+        }
+        :root[data-theme="light"] .banner-play-btn{ background:#12161D; color:#fff; }
+
+        /* ---------- Scroll progress bar ---------- */
+        #scrollProgress{
+            position: fixed; top:0; left:0; height:3px; width:0%;
+            background: linear-gradient(90deg, var(--accent-blue-deep), var(--live-red));
+            z-index: 10001;
+            transition: width 0.1s linear;
+        }
+
+        /* ---------- Theme toggle button ---------- */
+        .theme-toggle-btn{
+            background: var(--bg-raised) !important;
+            border: 1px solid var(--line) !important;
+            color: var(--text) !important;
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            display: inline-flex; align-items:center; justify-content:center;
+            cursor: pointer;
+            font-size: 15px;
+            margin-right: 10px;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+        .theme-toggle-btn:hover{ border-color: var(--accent-blue); transform: rotate(15deg); }
+
+        /* ---------- Back-to-top ---------- */
+        #backToTop{
+            position: fixed; right: 20px; bottom: 22px;
+            width: 46px; height: 46px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-blue-deep), var(--accent-blue));
+            color: #04121A;
+            display:flex; align-items:center; justify-content:center;
+            font-size: 17px;
+            border:none; cursor:pointer;
+            box-shadow: 0 6px 18px rgba(0,153,255,0.4);
+            opacity: 0; visibility: hidden; transform: translateY(12px);
+            transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+            z-index: 998;
+        }
+        #backToTop.show{ opacity:1; visibility:visible; transform: translateY(0); }
+        #backToTop:hover{ transform: translateY(-3px); }
+
+        /* ---------- Toast notifications ---------- */
+        #toastContainer{
+            position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%);
+            display:flex; flex-direction:column; gap:8px;
+            z-index: 10003;
+            width: min(92vw, 360px);
+        }
+        .toast-item{
+            background: var(--bg-raised);
+            border: 1px solid var(--line);
+            color: var(--text);
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            display:flex; align-items:center; gap:10px;
+            box-shadow: 0 10px 28px rgba(0,0,0,0.35);
+            animation: toastIn 0.25s ease;
+        }
+        .toast-item.warn{ border-color: var(--amber); }
+        .toast-item.ok{ border-color: var(--accent-blue-deep); }
+        @keyframes toastIn{ from{ opacity:0; transform: translateY(8px); } to{ opacity:1; transform:none; } }
+
+        /* ---------- Video grid: skeleton loader & empty state ---------- */
+        .video-grid.loading::before,
+        .video-grid.loading::after,
+        .video-grid.loading > .skeleton-card{ content:""; }
+        .skeleton-card{
+            height: 170px;
+            border-radius: 14px;
+            background: linear-gradient(100deg, var(--bg-card) 30%, var(--bg-raised) 45%, var(--bg-card) 60%);
+            background-size: 200% 100%;
+            animation: shimmer 1.4s ease-in-out infinite;
+            border: 1px solid var(--line);
+        }
+        @keyframes shimmer{ 0%{ background-position: 200% 0; } 100%{ background-position: -200% 0; } }
+
+        .video-empty-state{
+            grid-column: 1 / -1;
+            text-align:center;
+            padding: 50px 20px;
+            color: var(--text-dim);
+            font-family: var(--font-body);
+        }
+        .video-empty-state i{ font-size: 30px; margin-bottom: 10px; display:block; color: var(--text-dim); }
+
+        /* ---------- Reveal-on-scroll for video cards ---------- */
+        .video-grid > *{ opacity:0; transform: translateY(14px); }
+        .video-grid > *.revealed{
+            opacity:1; transform:none;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+        @media (prefers-reduced-motion: reduce){
+            .video-grid > *{ opacity:1; transform:none; }
+        }
+
+        /* Visible keyboard focus for accessibility */
+        a:focus-visible, button:focus-visible, input:focus-visible{
+            outline: 2px solid var(--accent-blue) !important;
+            outline-offset: 2px;
         }
     </style>
 </head>
 <body data-page="home">
+
+    <div id="scrollProgress"></div>
 
     <!-- Header -->
     <header class="navbar">
@@ -213,7 +521,7 @@
 
         <!-- Navigation Links -->
         <nav class="nav-links" id="navLinks">
-            <a href="index.html" class="active-link" style="color: #ff0000;">Home</a>
+            <a href="index.html" class="active-link">Home</a>
             <a href="live.html">Live Now</a>
             <a href="sports.html">Sports</a>
             <a href="about.html">About</a>
@@ -230,7 +538,10 @@
                 </div>
             </div>
 
-            <!-- 🌟 ডার্ক মোডে স্পষ্টভাবে জ্বলজ্বল করা ৩টি দাগের বাটন 🌟 -->
+            <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Toggle theme" title="থিম পরিবর্তন করুন">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+
             <button class="menu-toggle" id="mobileMenuBtn" aria-label="Toggle Menu">
                 <span class="bar"></span>
                 <span class="bar"></span>
@@ -253,7 +564,7 @@
         </div>
     </section>
 
-    <!-- 🔍 সার্চ বক্স -->
+    <!-- সার্চ বক্স -->
     <section class="search-section">
         <div class="search-box">
             <i class="fa-solid fa-magnifying-glass"></i>
@@ -261,7 +572,7 @@
         </div>
     </section>
 
-    <!-- 💥 ক্যাটাগরি বাটন (স্ম্যাশ ক্লিক ইফেক্ট সহ) 💥 -->
+    <!-- ক্যাটাগরি বাটন -->
     <section class="categories" id="categoryButtons">
         <button class="cat-btn live-btn" data-category="Live"><i class="fa-solid fa-satellite-dish"></i> Live Now</button>
         <button class="cat-btn active" data-category="All">All Video</button>
@@ -330,7 +641,15 @@
         </div>
     </div>
 
-    <!-- JS Files -->
+    <!-- নতুন: টপে ফেরার বাটন -->
+    <button id="backToTop" aria-label="Scroll to top" title="উপরে যান">
+        <i class="fa-solid fa-arrow-up"></i>
+    </button>
+
+    <!-- নতুন: Toast notification container -->
+    <div id="toastContainer"></div>
+
+    <!-- JS Files (unchanged) -->
     <script type="module" src="script.js"></script>
 
     <!-- মোবাইল মেনু স্ক্রিপ্ট -->
@@ -338,16 +657,16 @@
         document.addEventListener("DOMContentLoaded", function() {
             const toggleBtn = document.getElementById("mobileMenuBtn");
             const navMenu = document.getElementById("navLinks");
-
             if (toggleBtn && navMenu) {
                 toggleBtn.onclick = function() {
                     navMenu.classList.toggle("active");
-                    toggleBtn.classList.toggle("open"); // ৩ দাগ থেকে লাল 'X' হবে
+                    toggleBtn.classList.toggle("open");
                 };
             }
         });
     </script>
-    <!-- 🔍 লাইভ সার্চ স্ক্রিপ্ট: টাইপ করার সাথে সাথে ভিডিও ফিল্টার হবে -->
+
+    <!-- লাইভ সার্চ স্ক্রিপ্ট -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const searchInput = document.getElementById("videoSearchInput");
@@ -369,15 +688,164 @@
             }
 
             searchInput.addEventListener("input", filterVideos);
-
-            // ভিডিও গ্রিড script.js দিয়ে পরে লোড হলেও যেন সার্চ কাজ করে
             const gridObserver = new MutationObserver(filterVideos);
             gridObserver.observe(videoGrid, { childList: true });
         });
     </script>
 
-    <!-- 🌟 সব পেজের জন্য মাস্টার লগইন লিংক 🌟 -->
+    <!-- সব পেজের জন্য মাস্টার লগইন লিংক -->
     <script type="module" src="auth-modal.js"></script>
     <script src="header-footer.js"></script>
+
+    <!-- ============================================================
+         নতুন ফিচার (site-features.js এর প্রয়োজন নেই, সব এখানেই)
+         ============================================================ -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+
+            /* ---------- Toast notification system ---------- */
+            const toastContainer = document.getElementById("toastContainer");
+            window.showToast = function (message, type = "ok", duration = 3200) {
+                if (!toastContainer) return;
+                const el = document.createElement("div");
+                el.className = "toast-item " + type;
+                el.innerHTML = '<i class="fa-solid fa-circle-info"></i><span></span>';
+                el.querySelector("span").textContent = message;
+                toastContainer.appendChild(el);
+                setTimeout(() => {
+                    el.style.opacity = "0";
+                    el.style.transform = "translateY(8px)";
+                    el.style.transition = "opacity .25s ease, transform .25s ease";
+                    setTimeout(() => el.remove(), 260);
+                }, duration);
+            };
+
+            /* ---------- Theme toggle (dark/light, saved in localStorage) ---------- */
+            const themeBtn = document.getElementById("themeToggleBtn");
+            const root = document.documentElement;
+            const savedTheme = localStorage.getItem("legosight-theme");
+            if (savedTheme === "light") {
+                root.setAttribute("data-theme", "light");
+                if (themeBtn) themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+            }
+            if (themeBtn) {
+                themeBtn.addEventListener("click", function () {
+                    const isLight = root.getAttribute("data-theme") === "light";
+                    if (isLight) {
+                        root.removeAttribute("data-theme");
+                        localStorage.setItem("legosight-theme", "dark");
+                        themeBtn.innerHTML = '<i class="fa-solid fa-moon"></i>';
+                    } else {
+                        root.setAttribute("data-theme", "light");
+                        localStorage.setItem("legosight-theme", "light");
+                        themeBtn.innerHTML = '<i class="fa-solid fa-sun"></i>';
+                    }
+                });
+            }
+
+            /* ---------- Scroll progress bar + back-to-top ---------- */
+            const progressBar = document.getElementById("scrollProgress");
+            const backToTop = document.getElementById("backToTop");
+            window.addEventListener("scroll", function () {
+                const scrollTop = window.scrollY;
+                const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+                if (progressBar) progressBar.style.width = pct + "%";
+                if (backToTop) backToTop.classList.toggle("show", scrollTop > 400);
+            }, { passive: true });
+            if (backToTop) {
+                backToTop.addEventListener("click", function () {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                });
+            }
+
+            /* ---------- Keyboard shortcuts: "/" focuses search, Esc closes menu ---------- */
+            document.addEventListener("keydown", function (e) {
+                const activeTag = document.activeElement ? document.activeElement.tagName : "";
+                if (e.key === "/" && activeTag !== "INPUT" && activeTag !== "TEXTAREA") {
+                    e.preventDefault();
+                    const search = document.getElementById("videoSearchInput");
+                    if (search) search.focus();
+                }
+                if (e.key === "Escape") {
+                    const navMenu = document.getElementById("navLinks");
+                    const toggleBtn = document.getElementById("mobileMenuBtn");
+                    if (navMenu && navMenu.classList.contains("active")) {
+                        navMenu.classList.remove("active");
+                        if (toggleBtn) toggleBtn.classList.remove("open");
+                    }
+                }
+            });
+
+            /* ---------- Skeleton loader while videoGrid is empty, + "no results" empty state ---------- */
+            const videoGrid = document.getElementById("videoGrid");
+            const searchInput = document.getElementById("videoSearchInput");
+            if (videoGrid) {
+                videoGrid.classList.add("loading");
+                for (let i = 0; i < 8; i++) {
+                    const s = document.createElement("div");
+                    s.className = "skeleton-card";
+                    videoGrid.appendChild(s);
+                }
+
+                const revealCard = (card) => {
+                    if (!("IntersectionObserver" in window)) {
+                        card.classList.add("revealed");
+                        return;
+                    }
+                    const io = new IntersectionObserver((entries) => {
+                        entries.forEach((entry) => {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add("revealed");
+                                io.unobserve(entry.target);
+                            }
+                        });
+                    }, { threshold: 0.1 });
+                    io.observe(card);
+                };
+
+                const updateEmptyState = () => {
+                    const existingEmpty = videoGrid.querySelector(".video-empty-state");
+                    const realCards = Array.from(videoGrid.children).filter(
+                        (c) => !c.classList.contains("skeleton-card") && !c.classList.contains("video-empty-state")
+                    );
+                    const visibleCards = realCards.filter((c) => c.getAttribute("data-search-hidden") !== "true");
+                    if (realCards.length > 0 && visibleCards.length === 0) {
+                        if (!existingEmpty) {
+                            const empty = document.createElement("div");
+                            empty.className = "video-empty-state";
+                            empty.innerHTML = '<i class="fa-solid fa-video-slash"></i>খোঁজা ফলাফলের সাথে কোনো ভিডিও মেলেনি';
+                            videoGrid.appendChild(empty);
+                        }
+                    } else if (existingEmpty) {
+                        existingEmpty.remove();
+                    }
+                };
+
+                let realContentArrived = false;
+                const gridWatcher = new MutationObserver(() => {
+                    const realCards = Array.from(videoGrid.children).filter(
+                        (c) => !c.classList.contains("skeleton-card") && !c.classList.contains("video-empty-state")
+                    );
+                    if (realCards.length > 0 && !realContentArrived) {
+                        realContentArrived = true;
+                        videoGrid.classList.remove("loading");
+                        videoGrid.querySelectorAll(".skeleton-card").forEach((s) => s.remove());
+                    }
+                    realCards.forEach(revealCard);
+                    updateEmptyState();
+                });
+                gridWatcher.observe(videoGrid, { childList: true, attributes: true, attributeFilter: ["data-search-hidden"], subtree: true });
+
+                if (searchInput) {
+                    searchInput.addEventListener("input", updateEmptyState);
+                }
+            }
+
+            /* ---------- Online / offline toast (useful for a live-streaming site) ---------- */
+            window.addEventListener("offline", () => showToast("ইন্টারনেট সংযোগ বিচ্ছিন্ন হয়েছে", "warn"));
+            window.addEventListener("online", () => showToast("ইন্টারনেট সংযোগ ফিরে এসেছে", "ok"));
+        });
+    </script>
 </body>
 </html>
