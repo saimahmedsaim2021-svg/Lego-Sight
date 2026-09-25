@@ -182,6 +182,31 @@
                 transition: transform 0.3s ease;
             }
             .nav-links.active{ transform: translateX(0); }
+
+            /* লগইন/প্রোফাইল অংশ মোবাইলে নেভবার ড্রপডাউনের ভেতরে, লিংকগুলোর নিচে বসবে */
+            .nav-links #authSection{
+                width: 100%;
+                margin-top: 6px;
+                padding-top: 16px;
+                border-top: 1px solid var(--line);
+            }
+            .nav-links #authSection .login-btn{
+                width: 100%;
+                text-align: center;
+                padding: 10px 22px !important;
+            }
+            .nav-links #authSection .profile-section{
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                width: 100%;
+            }
+            .nav-links #authSection .profile-section #userNameDisplay{
+                flex: 1;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
         }
 
         /* ---------- Banner ---------- */
@@ -196,7 +221,27 @@
                 linear-gradient(180deg, rgba(10,13,18,0.15) 0%, rgba(10,13,18,0.95) 88%),
                 radial-gradient(circle at 15% 20%, rgba(0,153,255,0.35), transparent 45%),
                 linear-gradient(135deg, #10151d 0%, #0a0d12 70%);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
             border: 1px solid var(--line);
+        }
+        /* মোবাইলে ব্যানারের ছবি যাতে কাটা না যায়, তাই ফিক্সড উচ্চতার বদলে aspect-ratio ব্যবহার করা হলো */
+        @media (max-width: 600px) {
+            .banner-section{ padding: 14px 12px 0; }
+            .banner{
+                min-height: 0;
+                width: 100%;
+                aspect-ratio: 4 / 5;
+                border-radius: 14px;
+            }
+            .banner-text{ padding: 20px 18px; max-width: 100%; }
+            #bannerTitle{ font-size: clamp(24px, 7vw, 32px); margin: 10px 0 6px; }
+            #bannerSubtitle{ font-size: 14px; margin-bottom: 14px; }
+            .banner-play-btn{ padding: 10px 20px; font-size: 15px; }
+        }
+        @media (min-width: 601px) and (max-width: 900px) {
+            .banner{ min-height: 0; aspect-ratio: 16 / 9; }
         }
         .banner::before{
             content:"";
@@ -662,6 +707,46 @@
                     navMenu.classList.toggle("active");
                     toggleBtn.classList.toggle("open");
                 };
+            }
+        });
+    </script>
+
+    <!-- মোবাইলে লগইন/প্রোফাইল অংশ নেভবার ড্রপডাউনের (Home/Live/Sports/About) নিচে চলে যাবে,
+         ডেস্কটপে যেমন ছিল তেমনই থাকবে। একই #authSection নোড শুধু সরানো হচ্ছে,
+         তাই এর ভেতরের #headerLoginBtn / #userProfile আইডি একই থাকায় auth-modal.js /
+         header-footer.js কোনো পরিবর্তন ছাড়াই আগের মতো কাজ করবে। -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const authSection = document.getElementById("authSection");
+            const navLinks = document.getElementById("navLinks");
+            const headerRight = document.querySelector(".header-right");
+            if (!authSection || !navLinks || !headerRight) return;
+
+            // authSection মূল অবস্থান কোথায় ছিল তা মনে রাখতে একটা মার্কার বসানো হলো
+            const authAnchor = document.createComment("auth-section-desktop-anchor");
+            headerRight.insertBefore(authAnchor, authSection);
+
+            const mobileQuery = window.matchMedia("(max-width: 992px)");
+
+            function placeAuthSection(isMobile) {
+                if (isMobile) {
+                    if (authSection.parentElement !== navLinks) {
+                        navLinks.appendChild(authSection);
+                    }
+                } else {
+                    if (authSection.parentElement !== headerRight) {
+                        headerRight.insertBefore(authSection, authAnchor);
+                    }
+                }
+            }
+
+            placeAuthSection(mobileQuery.matches);
+
+            if (mobileQuery.addEventListener) {
+                mobileQuery.addEventListener("change", (e) => placeAuthSection(e.matches));
+            } else if (mobileQuery.addListener) {
+                // পুরনো ব্রাউজার সাপোর্ট
+                mobileQuery.addListener((e) => placeAuthSection(e.matches));
             }
         });
     </script>
