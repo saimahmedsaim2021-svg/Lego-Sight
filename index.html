@@ -293,21 +293,52 @@
         .banner-play-btn i{ font-size:13px; }
 
         /* ---------- Search ---------- */
-        .search-section{ padding: 20px 20px 0; }
+        /* সার্চ বক্সটি যেন পেজের মাঝখানে ভাসমান না থেকে ব্যানার/ক্যাটাগরির মতোই বাম দিক থেকে শুরু হয় */
+        .search-section{
+            padding: 20px 20px 0;
+            display: flex !important;
+            justify-content: flex-start !important;
+            text-align: left !important;
+        }
         .search-box{
             background: var(--bg-raised) !important;
             border: 1px solid var(--line) !important;
             border-radius: 26px !important;
-            padding: 10px 20px !important;
+            padding: 12px 20px !important;
             max-width: 440px;
+            width: 100%;
+            display: flex !important;
+            align-items: center !important;
+            gap: 10px;
+            min-height: 46px;
+            box-sizing: border-box;
+            overflow: visible !important;
+            margin: 0 !important;
         }
         .search-box:focus-within{
             border-color: var(--accent-blue) !important;
             box-shadow: 0 0 0 3px rgba(0,153,255,0.12);
         }
-        .search-box i{ color: var(--text-dim) !important; }
-        .search-box input{ color: var(--text) !important; font-family: var(--font-body); }
-        .search-box input::placeholder{ color: var(--text-dim) !important; }
+        .search-box i{ color: var(--text-dim) !important; flex-shrink: 0; }
+        .search-box input{
+            color: var(--text) !important;
+            font-family: var(--font-body);
+            flex: 1;
+            width: 100%;
+            min-width: 0;
+            border: none !important;
+            background: transparent !important;
+            outline: none !important;
+            font-size: 15px;
+            line-height: 1.6 !important;
+            padding: 3px 0 !important;
+            height: auto !important;
+        }
+        .search-box input::placeholder{ color: var(--text-dim) !important; line-height: 1.6; }
+        @media (max-width: 600px){
+            .search-section{ padding: 16px 12px 0; }
+            .search-box{ max-width: 100%; }
+        }
 
         /* ---------- Categories ---------- */
         .categories{ padding: 18px 20px 24px; gap: 10px; }
