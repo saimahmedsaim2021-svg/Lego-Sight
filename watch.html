@@ -9,7 +9,7 @@
     <!-- আইকন লাইব্রেরি -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- HLS লাইভ স্ট্রিম প্লেয়ার লাইব্রেরি -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17"></script>
 
     <style>
         /* 🌟 সিনেমাটিক ১৬:৯ প্লেয়ার বক্স (সম্পূর্ণ ফ্রেশ স্ক্রিন, কোনো লোগো নেই) 🌟 */
@@ -1494,13 +1494,25 @@
             return (match && match[2].length === 11) ? match[2] : null;
         }
 
+        function isHlsSource(url) {
+            if (!url) return false;
+            return /\.m3u8(\?|#|$)/i.test(url) || /m3u8/i.test(url);
+        }
+
         // =========================================================
         // 🎬 ভিডিও লোড ফাংশন (লাইভ চেক ও রেজোলিউশন সহ)
         // =========================================================
         let lastPlayArgs = null;
 
         function playVideo(videoSourceUrl, isLiveMatch = false, videoTitle = "Match Video", category = "Sports") {
-            lastPlayArgs = [videoSourceUrl, isLiveMatch, videoTitle, category];
+            let src = (videoSourceUrl || "").trim();
+
+            // 🌟 mixed-content ফিক্স: পেজ HTTPS হলে http:// লিংককেও https:// করে চেষ্টা করবে
+            if (src && location.protocol === "https:" && src.startsWith("http://")) {
+                src = "https://" + src.slice(7);
+            }
+
+            lastPlayArgs = [src, isLiveMatch, videoTitle, category];
 
             titleEl.innerText = videoTitle;
             catEl.innerText = category;
@@ -1517,61 +1529,22 @@
             PlayerUI.reset();
             PlayerUI.setLive(isLiveMatch === true); // কন্ট্রোলবারের LIVE ব্যাজ ও সিক বার এটাই ঠিক করে
 
-            if (!videoSourceUrl) {
+            if (!src) {
                 PlayerUI.setMode("video");
                 PlayerUI.error("No video source found for this match.");
                 return;
             }
 
-            const ytId = getYouTubeId(videoSourceUrl);
+            const ytId = getYouTubeId(src);
 
             // ১. Kick.com লাইভ ফ্রেম
-            if (videoSourceUrl.includes("kick.com")) {
+            if (src.includes("kick.com")) {
                 PlayerUI.setMode("embed");
-                ytPlayer.src = videoSourceUrl;
+                ytPlayer.src = src;
             }
             // ২. HLS (.m3u8) লাইভ স্ট্রিম ও রেজোলিউশন স্ক্যানিং
-            else if (videoSourceUrl.includes("m3u8")) {
-                PlayerUI.setMode("video");
-                PlayerUI.loading(true);
-
-                if (window.Hls && Hls.isSupported()) {
-                    const hls = new Hls({
-                        enableWorker: true,
-                        lowLatencyMode: true
-                    });
-                    window.activeHls = hls;
-                    PlayerUI.attachHls(hls); // আসল রেজোলিউশন সেটিংস মেনুতে আসবে
-
-                    hls.loadSource(videoSourceUrl);
-                    hls.attachMedia(videoPlayer);
-
-                    hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                        PlayerUI.autoplay();
-                    });
-
-                    let netRetries = 0, mediaRetries = 0;
-                    hls.on(Hls.Events.ERROR, function (event, data) {
-                        if (!data.fatal) return;
-                        if (data.type === Hls.ErrorTypes.NETWORK_ERROR && netRetries++ < 5) {
-                            hls.startLoad();
-                        } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR && mediaRetries++ < 3) {
-                            hls.recoverMediaError();
-                        } else {
-                            hls.destroy();
-                            window.activeHls = null;
-                            PlayerUI.error("Stream is unavailable right now. Please try again.");
-                        }
-                    });
-                } else if (videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-                    // Safari / iPhone নেটিভ HLS
-                    videoPlayer.src = videoSourceUrl;
-                    videoPlayer.addEventListener('loadedmetadata', function () {
-                        PlayerUI.autoplay();
-                    }, { once: true });
-                } else {
-                    PlayerUI.error("This browser cannot play this stream.");
-                }
+            else if (isHlsSource(src)) {
+                loadHls(src);
             }
             // ৩. ইউটিউব লিংক
             else if (ytId) {
@@ -1582,9 +1555,88 @@
             else {
                 PlayerUI.setMode("video");
                 PlayerUI.loading(true);
-                videoPlayer.src = videoSourceUrl;
+                videoPlayer.src = src;
                 videoPlayer.load();
                 PlayerUI.autoplay();
+            }
+        }
+
+        // 🌟 M3U8 লোডার — hls.js এখনো লোড না হয়ে থাকলে অপেক্ষা করবে (রেস কন্ডিশন ফিক্স),
+        // নেটওয়ার্ক/CORS/ম্যানিফেস্ট এরর আলাদাভাবে ধরবে ও বেশি রিট্রাই করবে
+        function loadHls(src, waited) {
+            PlayerUI.setMode("video");
+            PlayerUI.loading(true);
+
+            // hls.js CDN থেকে লোড হতে দেরি হলে সর্বোচ্চ ৫ সেকেন্ড অপেক্ষা করবে
+            if (!window.Hls) {
+                if ((waited || 0) > 5000) {
+                    PlayerUI.error("Player library failed to load. Check your internet connection and refresh.");
+                    return;
+                }
+                setTimeout(() => loadHls(src, (waited || 0) + 100), 100);
+                return;
+            }
+
+            if (Hls.isSupported()) {
+                const hls = new Hls({
+                    enableWorker: true,
+                    lowLatencyMode: true,
+                    backBufferLength: 90,
+                    manifestLoadingMaxRetry: 6,
+                    manifestLoadingRetryDelay: 800,
+                    levelLoadingMaxRetry: 6,
+                    fragLoadingMaxRetry: 8,
+                    xhrSetup: function (xhr) {
+                        xhr.withCredentials = false; // পাবলিক CDN/স্ট্রিমের জন্য ডিফল্ট
+                    }
+                });
+                window.activeHls = hls;
+                PlayerUI.attachHls(hls); // আসল রেজোলিউশন সেটিংস মেনুতে আসবে
+
+                hls.loadSource(src);
+                hls.attachMedia(videoPlayer);
+
+                hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                    PlayerUI.autoplay();
+                });
+
+                let netRetries = 0, mediaRetries = 0;
+                hls.on(Hls.Events.ERROR, function (event, data) {
+                    console.warn("HLS error:", data.type, data.details, data.fatal);
+                    if (!data.fatal) return;
+
+                    if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+                        if (data.details === "manifestLoadError" || data.details === "manifestLoadTimeOut") {
+                            if (netRetries++ < 5) { setTimeout(() => hls.startLoad(), 700); return; }
+                            hls.destroy();
+                            window.activeHls = null;
+                            PlayerUI.error("Could not reach the stream. It may be offline, the link may be wrong, or the server is blocking cross-origin (CORS) access.");
+                        } else if (netRetries++ < 5) {
+                            hls.startLoad();
+                        } else {
+                            hls.destroy();
+                            window.activeHls = null;
+                            PlayerUI.error("Stream connection lost. Please try again.");
+                        }
+                    } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR && mediaRetries++ < 3) {
+                        hls.recoverMediaError();
+                    } else {
+                        hls.destroy();
+                        window.activeHls = null;
+                        PlayerUI.error("Stream is unavailable right now. Please try again.");
+                    }
+                });
+            } else if (videoPlayer.canPlayType("application/vnd.apple.mpegurl")) {
+                // Safari / iPhone নেটিভ HLS
+                videoPlayer.src = src;
+                videoPlayer.addEventListener("loadedmetadata", function () {
+                    PlayerUI.autoplay();
+                }, { once: true });
+                videoPlayer.addEventListener("error", function () {
+                    PlayerUI.error("This stream could not be played. Check the link and try again.");
+                }, { once: true });
+            } else {
+                PlayerUI.error("This browser cannot play this stream.");
             }
         }
 
@@ -1771,6 +1823,37 @@
                 menuBtn.classList.toggle("open");
             };
         }
+    </script>
+
+    <!-- ========================================================= -->
+    <!-- 🔒 বেসিক প্রোটেকশন: রাইট-ক্লিক ও F12/Inspect শর্টকাট বন্ধ   -->
+    <!-- (নোট: এটি ১০০% ফুলপ্রুফ নয়, শুধু সাধারণ ইউজারদের জন্য বাধা) -->
+    <!-- ========================================================= -->
+    <script>
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener("keydown", function (e) {
+            const key = (e.key || "").toUpperCase();
+            // F12
+            if (key === "F12") { e.preventDefault(); return false; }
+            // Ctrl+Shift+I / J / C (DevTools, Console, Inspect Element)
+            if (e.ctrlKey && e.shiftKey && ["I", "J", "C"].includes(key)) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+U (View Source)
+            if (e.ctrlKey && key === "U") {
+                e.preventDefault();
+                return false;
+            }
+            // Cmd+Opt+I / J / C (Mac Safari/Chrome)
+            if (e.metaKey && e.altKey && ["I", "J", "C"].includes(key)) {
+                e.preventDefault();
+                return false;
+            }
+        });
     </script>
 </body>
 </html>
