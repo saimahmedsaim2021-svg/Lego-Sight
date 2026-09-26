@@ -9,7 +9,20 @@
     <meta property="og:title" content="Lego Sight - Live Sports & Events">
     <meta property="og:description" content="Watch live sports, football, cricket & gaming streams in one place.">
     <meta property="og:type" content="website">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔴</text></svg>">
+    <link id="siteFavicon" rel="icon" type="image/png" href="logo.png">
+    <script>
+        // ব্রাউজার ট্যাবে সাইটের নিজস্ব লোগো (logo.png) দেখানোর জন্য।
+        // logo.png লোড না হলে আগের লাল-বৃত্ত আইকনেই ফিরে যাবে, যাতে ট্যাবের আইকন কখনো ফাঁকা না থাকে।
+        (function () {
+            var fallbackIcon = "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔴</text></svg>";
+            var favLink = document.getElementById("siteFavicon");
+            var probe = new Image();
+            probe.onerror = function () {
+                if (favLink) favLink.href = fallbackIcon;
+            };
+            probe.src = "logo.png";
+        })();
+    </script>
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2110074415950799"
      crossorigin="anonymous"></script>
     <link rel="stylesheet" href="style.css">
@@ -382,6 +395,13 @@
             box-shadow: 0 4px 16px rgba(255,59,78,0.35);
         }
         .cat-btn.live-btn{ border-color: rgba(255,59,78,0.5) !important; color: var(--live-red) !important; }
+        /* FIX: "Live Now" বাটনটি যাতে মোবাইলে কোনোভাবেই লুকানো/গায়েব না হয়ে যায় */
+        .cat-btn.live-btn{
+            display: inline-flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            order: -1;
+        }
 
         /* ---------- Video grid ---------- */
         .video-section{ padding: 6px 20px 40px; }
@@ -486,8 +506,9 @@
             --text:          #12161D;
             --text-dim:      #5B6472;
         }
-        :root[data-theme="light"] .login-btn,
-        :root[data-theme="light"] .submit-btn{ color:#fff !important; }
+        /* FIX: আগে লাইট মোডে বাটনের লেখা জোর করে সাদা করা হতো, কিন্তু ব্যাকগ্রাউন্ড
+           হালকা নীলই থাকে (দুই মোডেই), ফলে সাদা লেখা প্রায় দেখাই যেত না।
+           গাঢ় নেভি (#04121A) লেখাই দুই মোডে সঠিকভাবে দেখা যায়, তাই সরানো হলো। */
         :root[data-theme="light"] .banner{
             background:
                 linear-gradient(180deg, rgba(245,247,250,0.1) 0%, rgba(245,247,250,0.96) 88%),
