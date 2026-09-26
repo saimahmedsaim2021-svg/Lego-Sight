@@ -41,6 +41,17 @@
 
         *{ box-sizing:border-box; }
 
+        /* ---------- FIX: stop the whole page from scrolling sideways on mobile ----------
+           Root cause of the "navbar/logo drifts right" bug: some section (the category
+           button row) was wider than the viewport, which created page-level horizontal
+           overflow. On mobile browsers a sticky/fixed header shifts with that horizontal
+           scroll, which is exactly what looked like the navbar "moving right". Locking
+           html/body to the viewport width fixes it at the source. */
+        html, body{
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
         body{
             background: var(--bg) !important;
             color: var(--text) !important;
@@ -55,6 +66,8 @@
             position: sticky;
             top: 0;
             z-index: 999;
+            width: 100%;
+            max-width: 100vw;
         }
 
         .logo a {
@@ -176,6 +189,7 @@
                 border-left: 1px solid var(--line);
                 border-bottom: 1px solid var(--line);
                 width: 220px;
+                max-width: 80vw;
                 padding: 18px;
                 gap: 18px;
                 transform: translateX(100%);
@@ -327,7 +341,21 @@
         }
 
         /* ---------- Categories ---------- */
-        .categories{ padding: 18px 20px 24px; gap: 10px; }
+        /* FIX: this row of buttons was the main source of horizontal overflow on
+           mobile (it never wrapped and had no scroll container of its own, so it
+           pushed the whole <body> wider than the viewport). Now it scrolls
+           sideways WITHIN itself instead of stretching the page. */
+        .categories{
+            padding: 18px 20px 24px;
+            gap: 10px;
+            display: flex;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            max-width: 100%;
+        }
+        .categories::-webkit-scrollbar{ display: none; }
         .cat-btn {
             font-family: var(--font-display);
             letter-spacing:0.3px;
@@ -338,6 +366,8 @@
             border-radius: 24px !important;
             font-size: 16px !important;
             font-weight: 600 !important;
+            flex-shrink: 0;
+            white-space: nowrap;
         }
         .cat-btn:hover{ border-color: var(--live-red) !important; box-shadow: 0 2px 12px rgba(255,59,78,0.18); }
         .cat-btn:active{
