@@ -1,0 +1,1938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Watch - Lego Sight</title>
+    <!-- CSS ফাইল -->
+    <link rel="stylesheet" href="style.css">
+    <!-- আইকন লাইব্রেরি -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- HLS লাইভ স্ট্রিম প্লেয়ার লাইব্রেরি -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17"></script>
+
+    <style>
+        /* 🌟 সিনেমাটিক ১৬:৯ প্লেয়ার বক্স (সম্পূর্ণ ফ্রেশ স্ক্রিন, কোনো লোগো নেই) 🌟 */
+        .video-player-wrapper {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background-color: #000000;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.9);
+            border: 1px solid #333333;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation; /* ডাবল-ট্যাপ করলে ব্রাউজার জুম হবে না */
+        }
+
+        /* নেটিভ ফুলস্ক্রিন */
+        .video-player-wrapper:fullscreen,
+        .video-player-wrapper:-webkit-full-screen {
+            width: 100%;
+            height: 100%;
+            aspect-ratio: auto;
+            border-radius: 0;
+            border: none;
+            box-shadow: none;
+        }
+
+        /* ফলব্যাক ফুলস্ক্রিন (iPhone ইত্যাদি যেখানে নেটিভ ফুলস্ক্রিন নেই) */
+        .video-player-wrapper.pseudo-fs {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            aspect-ratio: auto;
+            border-radius: 0;
+            border: none;
+            z-index: 99999;
+        }
+
+        /* 🌟 রোটেট মোড: ফোন পোর্ট্রেটে থাকলেও ভিডিও ল্যান্ডস্কেপ দেখাবে 🌟 */
+        .video-player-wrapper.pseudo-fs.css-rotated {
+            top: 0;
+            left: 0;
+            width: 100vh;
+            height: 100vw;
+            transform-origin: top left;
+            transform: translateX(100vw) rotate(90deg);
+        }
+
+        @supports (height: 100dvh) {
+            .video-player-wrapper.pseudo-fs { width: 100dvw; height: 100dvh; }
+            .video-player-wrapper.pseudo-fs.css-rotated {
+                width: 100dvh;
+                height: 100dvw;
+                transform: translateX(100dvw) rotate(90deg);
+            }
+        }
+
+        #videoPlayer, #ytPlayer {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            border: none;
+            outline: none;
+            object-fit: contain;
+            background: #000;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* ইউটিউব/কিক এমবেড মোডে আমাদের কন্ট্রোল লুকানো থাকবে (ওদের নিজস্ব কন্ট্রোল আছে) */
+        .video-player-wrapper.mode-embed { cursor: default; }
+        .video-player-wrapper.mode-embed .custom-controls-bar,
+        .video-player-wrapper.mode-embed .center-play-overlay,
+        .video-player-wrapper.mode-embed .player-spinner,
+        .video-player-wrapper.mode-embed .player-toast {
+            display: none !important;
+        }
+
+        /* মাঝখানের বড় প্লে বাটন */
+        .center-play-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.65);
+            border: 2px solid #00d2ff;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            z-index: 15;
+            transition: all 0.25s ease;
+            box-shadow: 0 0 20px rgba(0, 210, 255, 0.4);
+        }
+
+        .center-play-overlay.hidden-btn {
+            opacity: 0;
+            pointer-events: none;
+            transform: translate(-50%, -50%) scale(0.7);
+        }
+
+        /* লোডিং স্পিনার */
+        .player-spinner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 46px;
+            height: 46px;
+            margin: -23px 0 0 -23px;
+            border: 4px solid rgba(255, 255, 255, 0.25);
+            border-top-color: #00d2ff;
+            border-radius: 50%;
+            animation: playerSpin 0.8s linear infinite;
+            z-index: 14;
+            pointer-events: none;
+        }
+
+        @keyframes playerSpin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ছোট নোটিফিকেশন (+10s, 1.5x ইত্যাদি) */
+        .player-toast {
+            position: absolute;
+            top: 14%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.75);
+            color: #fff;
+            padding: 7px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 30;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+            white-space: nowrap;
+        }
+
+        .player-toast.show { opacity: 1; }
+
+        /* এরর মেসেজ */
+        .player-message {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: rgba(0, 0, 0, 0.88);
+            color: #ddd;
+            z-index: 20;
+            text-align: center;
+            padding: 20px;
+            font-size: 14px;
+            cursor: default;
+        }
+
+        .player-message button {
+            background: #ff0000;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 8px 20px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        /* 🌟 ইউটিউব-স্টাইল অটো-হাইড কন্ট্রোলবার 🌟 */
+        .custom-controls-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+            padding: 16px 20px 12px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            z-index: 25;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            cursor: default;
+        }
+
+        .video-player-wrapper.hide-ui .custom-controls-bar {
+            opacity: 0;
+            transform: translateY(15px);
+            pointer-events: none;
+        }
+
+        .video-player-wrapper.hide-ui {
+            cursor: none;
+        }
+
+        /* 🌟 সিক বার (প্রগ্রেস লাইন) 🌟 */
+        .seek-row { width: 100%; }
+
+        .seek-bar {
+            position: relative;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            touch-action: none;
+        }
+
+        .seek-track {
+            position: relative;
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.28);
+            border-radius: 4px;
+            overflow: hidden;
+            transition: height 0.12s;
+        }
+
+        .seek-bar:hover .seek-track,
+        .seek-bar.dragging .seek-track { height: 6px; }
+
+        .seek-buffered, .seek-progress {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: 0;
+        }
+
+        .seek-buffered { background: rgba(255, 255, 255, 0.4); }
+        .seek-progress { background: #ff0000; }
+
+        .seek-thumb {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 14px;
+            height: 14px;
+            margin: -7px 0 0 -7px;
+            border-radius: 50%;
+            background: #ff0000;
+            transform: scale(0);
+            transition: transform 0.12s;
+            pointer-events: none;
+        }
+
+        .seek-bar:hover .seek-thumb,
+        .seek-bar.dragging .seek-thumb { transform: scale(1); }
+
+        @media (pointer: coarse) {
+            .seek-thumb { transform: scale(1); }
+        }
+
+        .seek-tooltip {
+            position: absolute;
+            bottom: 24px;
+            left: 0;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: #fff;
+            font-size: 12px;
+            padding: 3px 7px;
+            border-radius: 4px;
+            pointer-events: none;
+            opacity: 0;
+            white-space: nowrap;
+        }
+
+        .seek-bar:hover .seek-tooltip,
+        .seek-bar.dragging .seek-tooltip { opacity: 1; }
+
+        .time-text {
+            color: #fff;
+            font-size: 13px;
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+
+        /* লাইভ ভিডিওতে সিক বার ও সময় লুকানো থাকবে */
+        .video-player-wrapper.is-live .seek-row,
+        .video-player-wrapper.is-live .time-text { display: none; }
+
+        .controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .controls-left, .controls-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .ctrl-btn {
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            font-size: 17px;
+            cursor: pointer;
+            padding: 6px;
+            transition: color 0.2s, transform 0.2s;
+        }
+
+        .ctrl-btn:hover {
+            color: #00d2ff;
+            transform: scale(1.15);
+        }
+
+        /* ভলিউম স্লাইডার */
+        .volume-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .volume-slider {
+            width: 75px;
+            height: 4px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #00d2ff;
+            cursor: pointer;
+        }
+
+        .volume-slider::-moz-range-thumb {
+            width: 12px;
+            height: 12px;
+            border: none;
+            border-radius: 50%;
+            background: #00d2ff;
+            cursor: pointer;
+        }
+
+        /* 🌟 সেটিংস মেনু (Quality / Speed / Screen) 🌟 */
+        .settings-menu {
+            position: absolute;
+            bottom: calc(100% + 12px);
+            right: 0;
+            background: rgba(18, 18, 22, 0.96);
+            border: 1px solid #3a3a3a;
+            border-radius: 10px;
+            padding: 8px 6px;
+            display: none;
+            flex-direction: column;
+            gap: 3px;
+            z-index: 40;
+            min-width: 210px;
+            overflow-y: auto;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85);
+        }
+
+        .settings-menu.open {
+            display: flex;
+        }
+
+        .settings-header {
+            font-size: 11px;
+            color: #888;
+            padding: 4px 10px 6px 10px;
+            border-bottom: 1px solid #2e2e2e;
+            margin-bottom: 4px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: uppercase;
+        }
+
+        .settings-header.settings-back { cursor: pointer; }
+        .settings-header.settings-back:hover { color: #00d2ff; }
+
+        .quality-opt {
+            background: transparent;
+            border: none;
+            color: #ccc;
+            padding: 8px 12px;
+            text-align: left;
+            font-size: 13px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            transition: 0.2s;
+        }
+
+        .quality-opt:hover {
+            background: #25252e;
+            color: #00d2ff;
+        }
+
+        .quality-opt.active-quality {
+            background: rgba(255, 0, 0, 0.2);
+            color: #ff4d4d;
+            font-weight: bold;
+        }
+
+        .quality-opt .opt-val {
+            color: #8a8a99;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .quality-opt.active-quality .opt-val { color: #ff4d4d; }
+
+        /* ব্যাজ */
+        .live-tag {
+            background: #ff0000;
+            color: #ffffff;
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
+        }
+
+        /* লাইভ থেকে পিছিয়ে থাকলে ধূসর — ক্লিক করলে লাইভে ফিরবে */
+        #liveBadge { cursor: pointer; }
+        #liveBadge.behind {
+            background: #555;
+            animation: none;
+        }
+
+        .vod-tag {
+            background: #2a2a2a;
+            color: #aaa;
+            font-size: 11px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid #444;
+        }
+
+        .action-btn.active {
+            color: #ff0000 !important;
+        }
+
+        .subscribe-btn.subscribed {
+            background: #333 !important;
+            color: #aaa !important;
+        }
+
+        /* রোটেট বাটন শুধু টাচ ডিভাইসে (ফোন/ট্যাবলেট) */
+        @media (hover: hover) and (pointer: fine) {
+            #rotateBtn { display: none; }
+        }
+
+        /* মোবাইল */
+        @media (max-width: 600px) {
+            .custom-controls-bar { padding: 10px 10px 8px 10px; }
+            .controls-left, .controls-right { gap: 6px; }
+            .ctrl-btn { font-size: 15px; padding: 5px; }
+            .volume-slider { display: none; }
+            .time-text { font-size: 11px; }
+            .center-play-overlay { width: 56px; height: 56px; font-size: 20px; }
+            .settings-menu { min-width: 180px; }
+        }
+    </style>
+</head>
+<body data-page="watch">
+
+    <!-- Header / Navbar -->
+    <header class="navbar">
+        <div class="logo">
+            <a href="index.html">
+                <img src="logo.png" alt="Lego Sight" class="site-logo-img" onerror="this.src='https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?w=100';">
+                <span class="logo-text">Lego <span>Sight</span></span>
+            </a>
+        </div>
+        <nav class="nav-links" id="navLinks">
+            <a href="index.html">Home</a>
+            <a href="live.html">Live Now</a>
+            <a href="sports.html">Sports</a>
+            <a href="about.html">About</a>
+        </nav>
+        <div class="header-right">
+            <!-- 🌟 আসল Auth Section (auth-modal.js দিয়ে সম্পূর্ণ পরিচালিত) 🌟 -->
+            <div id="authSection">
+                <button class="login-btn" id="headerLoginBtn">Login</button>
+                <div id="userProfile" class="profile-section hidden">
+                    <i class="fa-solid fa-circle-user profile-icon"></i>
+                    <span id="userNameDisplay">User</span>
+                    <button id="logoutBtn" class="logout-btn" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></button>
+                </div>
+            </div>
+            
+            <button class="menu-toggle" id="mobileMenuBtn" aria-label="Toggle Menu">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- 🌟 মেইন ওয়াচ কন্টেইনার 🌟 -->
+    <main class="watch-container">
+        
+        <!-- বাম পাশ: প্লেয়ার, লাইক ও রিয়েলটাইম কমেন্ট -->
+        <section class="main-player-section">
+            
+            <!-- 🎬 সম্পূর্ণ ফ্রেশ ভিডিও প্লেয়ার (কোনো লোগো নেই) 🎬 -->
+            <div class="video-player-wrapper" id="playerWrapper">
+
+                <!-- ১. ইউটিউব বা কিক ফ্রেম প্লেয়ার -->
+                <iframe id="ytPlayer" class="hidden" src="about:blank" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                
+                <!-- ২. হাই-স্পিড ভিডিও প্লেয়ার (.m3u8 ও MP4) -->
+                <video id="videoPlayer" class="hidden" playsinline webkit-playsinline preload="auto">
+                    Your browser does not support the video tag.
+                </video>
+
+                <!-- লোডিং স্পিনার -->
+                <div class="player-spinner hidden" id="playerSpinner"></div>
+
+                <!-- ছোট নোটিফিকেশন -->
+                <div class="player-toast" id="playerToast"></div>
+
+                <!-- এরর মেসেজ -->
+                <div class="player-message hidden" id="playerMessage">
+                    <div id="playerMessageText">Video could not be loaded.</div>
+                    <button type="button" id="playerRetryBtn"><i class="fa-solid fa-rotate-right"></i> Retry</button>
+                </div>
+
+                <!-- মাঝখানের বড় প্লে বাটন -->
+                <div class="center-play-overlay" id="centerPlayBtn">
+                    <i class="fa-solid fa-play" id="centerPlayIcon"></i>
+                </div>
+
+                <!-- ৩. কাস্টম অটো-হাইড কন্ট্রোলবার -->
+                <div class="custom-controls-bar" id="controlsBar">
+
+                    <!-- 🌟 সিক বার (প্রগ্রেস লাইন) 🌟 -->
+                    <div class="seek-row" id="seekRow">
+                        <div class="seek-bar" id="seekBar">
+                            <div class="seek-track">
+                                <div class="seek-buffered" id="seekBuffered"></div>
+                                <div class="seek-progress" id="seekProgress"></div>
+                            </div>
+                            <div class="seek-thumb" id="seekThumb"></div>
+                            <div class="seek-tooltip" id="seekTooltip">0:00</div>
+                        </div>
+                    </div>
+
+                    <div class="controls-row">
+                        <!-- বাম পাশ: Play/Pause, Volume, সময়, কন্ডিশনাল Live Badge -->
+                        <div class="controls-left">
+                            <button class="ctrl-btn" id="playPauseBtn" title="Play/Pause (k)">
+                                <i class="fa-solid fa-play" id="playIcon"></i>
+                            </button>
+
+                            <div class="volume-container">
+                                <button class="ctrl-btn" id="muteBtn" title="Mute/Unmute (m)">
+                                    <i class="fa-solid fa-volume-high" id="volumeIcon"></i>
+                                </button>
+                                <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.05" value="1">
+                            </div>
+
+                            <span class="time-text" id="timeText">0:00 / 0:00</span>
+
+                            <!-- 🌟 শুধুমাত্র লাইভ হলে এটি জ্বলবে, সাধারণ ভিডিওতে লুকানো থাকবে 🌟 -->
+                            <span class="live-tag hidden" id="liveBadge" title="Go to live" style="margin-left: 5px;">🔴 LIVE</span>
+                        </div>
+
+                        <!-- ডান পাশ: সেটিংস, জুম, রোটেট ও ফুলস্ক্রিন -->
+                        <div class="controls-right">
+                            <!-- ⚙️ সেটিংস (Quality / Speed / Screen) ⚙️ -->
+                            <div style="position: relative;" id="settingsContainer">
+                                <button class="ctrl-btn" id="settingsBtn" title="Settings">
+                                    <i class="fa-solid fa-gear"></i>
+                                </button>
+                                <div class="settings-menu" id="settingsDropdown"></div>
+                            </div>
+
+                            <!-- জুম (Fit / Zoom / Stretch) -->
+                            <button class="ctrl-btn" id="zoomBtn" title="Zoom / Fit">
+                                <i class="fa-solid fa-magnifying-glass-plus"></i>
+                            </button>
+
+                            <!-- রোটেট (ফোনে) -->
+                            <button class="ctrl-btn" id="rotateBtn" title="Rotate">
+                                <i class="fa-solid fa-rotate"></i>
+                            </button>
+
+                            <!-- ফুলস্ক্রিন বাটন -->
+                            <button class="ctrl-btn" id="fullscreenBtn" title="Fullscreen (f)">
+                                <i class="fa-solid fa-expand" id="fsIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ভিডিও ইনফরমেশন -->
+            <div class="video-header-info">
+                <h1 id="currentVideoTitle">Loading Match...</h1>
+                
+                <div class="video-actions-bar">
+                    <div class="channel-info">
+                        <i class="fa-solid fa-circle-user fa-2x" style="color: #ff0000;"></i>
+                        <div>
+                            <h4 id="videoCategory">Sports Arena</h4>
+                            <!-- 🌟 লাইভ হলে LIVE দেখাবে, না হলে Match Video দেখাবে 🌟 -->
+                            <span id="statusBadge" class="vod-tag">🎬 Match Video</span>
+                        </div>
+                        <button class="subscribe-btn" id="subscribeBtn"><i class="fa-solid fa-bell"></i> <span id="subBtnText">Subscribe</span></button>
+                    </div>
+
+                    <!-- লাইক ও শেয়ার বাটন -->
+                    <div class="action-buttons">
+                        <button class="action-btn" id="likeBtn">
+                            <i class="fa-solid fa-thumbs-up"></i> <span id="likeCount">0</span>
+                        </button>
+                        <button class="action-btn" id="shareBtn">
+                            <i class="fa-solid fa-share"></i> Share
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- কমেন্ট সেকশন -->
+            <div class="comments-section">
+                <h3>Comments (<span id="commentCount">0</span>)</h3>
+                
+                <div class="comment-input-box">
+                    <input type="text" id="commentInput" placeholder="Add a public comment..." />
+                    <button id="submitCommentBtn">Comment</button>
+                </div>
+
+                <div class="comments-list" id="commentsList">
+                    <p style="color: #666; font-size: 13px;">No comments yet.</p>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ডান পাশ: সম্পর্কিত ভিডিও -->
+        <aside class="related-videos-section">
+            <h3 class="related-title">Related Matches</h3>
+            <div class="related-list" id="relatedVideosList">
+                <p style="color: #666; font-size: 13px;">Loading related matches...</p>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- ফুটার -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-box">
+                <h2><i class="fa-solid fa-play-circle"></i> Lego Sight</h2>
+                <p>The best platform to watch live sports, gaming, and events seamlessly.</p>
+            </div>
+            <div class="footer-box">
+                <h2>Quick Links</h2>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="privacy.html">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div class="footer-box">
+                <h2>Contact Us</h2>
+                <p><i class="fa-solid fa-phone"></i> <span id="footerPhone">Loading...</span></p>
+                <p><i class="fa-brands fa-whatsapp" style="color: #25D366;"></i> <span id="footerWhatsapp">Loading...</span></p>
+                <p><i class="fa-solid fa-envelope" style="color: #ea4335;"></i> <span id="footerEmail">Loading...</span></p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 Lego Sight. All rights reserved.
+        </div>
+    </footer>
+
+    <!-- ========================================================= -->
+    <!-- 🌟 ১. মাস্টার অথ স্ক্রিপ্ট (লগইন, সাইন-আপ ও প্রোফাইল ১০০% কাজ করবে) 🌟 -->
+    <!-- ========================================================= -->
+    <script type="module" src="auth-modal.js"></script>
+
+    <!-- ========================================================= -->
+    <!-- 🎮 প্লেয়ার কন্ট্রোল ইঞ্জিন (window.PlayerUI)               -->
+    <!-- প্লে/পজ, সিক বার, ভলিউম, কোয়ালিটি, স্পিড, জুম, রোটেট,      -->
+    <!-- ফুলস্ক্রিন, অটো-হাইড, ডাবল-ট্যাপ, কিবোর্ড শর্টকাট           -->
+    <!-- ========================================================= -->
+    <script>
+    (function () {
+        "use strict";
+
+        const $ = (id) => document.getElementById(id);
+        const wrapper = $("playerWrapper");
+        const video = $("videoPlayer");
+        const iframeEl = $("ytPlayer");
+        const controlsBar = $("controlsBar");
+        const centerBtn = $("centerPlayBtn");
+        const centerIcon = $("centerPlayIcon");
+        const playBtn = $("playPauseBtn");
+        const playIcon = $("playIcon");
+        const muteBtn = $("muteBtn");
+        const volIcon = $("volumeIcon");
+        const volSlider = $("volumeSlider");
+        const timeText = $("timeText");
+        const liveBadge = $("liveBadge");
+        const seekBar = $("seekBar");
+        const seekBuf = $("seekBuffered");
+        const seekProg = $("seekProgress");
+        const seekThumb = $("seekThumb");
+        const seekTip = $("seekTooltip");
+        const settingsBtn = $("settingsBtn");
+        const menu = $("settingsDropdown");
+        const zoomBtn = $("zoomBtn");
+        const rotateBtn = $("rotateBtn");
+        const fsBtn = $("fullscreenBtn");
+        const fsIcon = $("fsIcon");
+        const spinner = $("playerSpinner");
+        const toastEl = $("playerToast");
+        const msgBox = $("playerMessage");
+        const msgText = $("playerMessageText");
+        const retryBtn = $("playerRetryBtn");
+
+        const isTouch = window.matchMedia("(pointer: coarse)").matches;
+        const DBL = 280; // ডাবল-ক্লিক/ট্যাপের সময়সীমা (ms)
+
+        const state = {
+            mode: "video",      // "video" | "embed"
+            live: false,
+            hls: null,
+            level: -1,          // -1 = Auto
+            menuOpen: false,
+            menuView: "main",
+            fit: 0,
+            seeking: false,
+            hoverControls: false,
+            hoverWrapper: false,
+            pseudo: false
+        };
+
+        const FITS = [
+            { name: "Fit", css: "contain" },
+            { name: "Zoom (Fill)", css: "cover" },
+            { name: "Stretch", css: "fill" }
+        ];
+        const SPEEDS = [0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
+
+        /* ---------------- ছোট হেল্পার ---------------- */
+        function fmt(s) {
+            if (!isFinite(s) || s < 0) s = 0;
+            s = Math.floor(s);
+            const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+            const ss = String(sec).padStart(2, "0");
+            return h > 0 ? h + ":" + String(m).padStart(2, "0") + ":" + ss : m + ":" + ss;
+        }
+
+        function liveNow() {
+            return state.live || video.duration === Infinity;
+        }
+
+        function fracFrom(e, el) {
+            const r = el.getBoundingClientRect();
+            const rotated = wrapper.classList.contains("css-rotated");
+            const f = rotated ? (e.clientY - r.top) / r.height : (e.clientX - r.left) / r.width;
+            return Math.min(1, Math.max(0, f));
+        }
+
+        let toastTimer;
+        function toast(msg) {
+            toastEl.textContent = msg;
+            toastEl.classList.add("show");
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toastEl.classList.remove("show"), 900);
+        }
+
+        function applyLiveUI() {
+            const live = liveNow();
+            wrapper.classList.toggle("is-live", live);
+            liveBadge.classList.toggle("hidden", !live);
+            if (!live) liveBadge.classList.remove("behind");
+        }
+
+        /* ---------------- প্লে / পজ ---------------- */
+        function togglePlay() {
+            if (video.paused || video.ended) {
+                const p = video.play();
+                if (p && p.catch) p.catch(() => {});
+            } else {
+                video.pause();
+            }
+        }
+
+        let raf = null;
+        function loop() {
+            updateProgress();
+            raf = requestAnimationFrame(loop);
+        }
+        function stopLoop() {
+            if (raf) cancelAnimationFrame(raf);
+            raf = null;
+        }
+
+        video.addEventListener("play", () => {
+            playIcon.className = "fa-solid fa-pause";
+            centerBtn.classList.add("hidden-btn");
+            if (!raf) loop();
+            scheduleHide();
+        });
+
+        video.addEventListener("pause", () => {
+            playIcon.className = "fa-solid fa-play";
+            centerIcon.className = "fa-solid fa-play";
+            centerBtn.classList.remove("hidden-btn");
+            spinner.classList.add("hidden");
+            stopLoop();
+            updateProgress();
+            showControls();
+        });
+
+        video.addEventListener("ended", () => {
+            centerIcon.className = "fa-solid fa-rotate-right";
+            showControls();
+        });
+
+        video.addEventListener("waiting", () => spinner.classList.remove("hidden"));
+        ["playing", "canplay", "loadeddata", "seeked"].forEach((ev) =>
+            video.addEventListener(ev, () => spinner.classList.add("hidden"))
+        );
+        video.addEventListener("playing", () => msgBox.classList.add("hidden"));
+
+        video.addEventListener("error", () => {
+            if (state.hls) return; // HLS নিজে রিকভার করে
+            if (!video.getAttribute("src")) return;
+            showError("Video could not be loaded. Check the link and try again.");
+        });
+
+        video.addEventListener("durationchange", () => { applyLiveUI(); updateProgress(); updateBuffered(); });
+        video.addEventListener("loadedmetadata", () => { applyLiveUI(); updateProgress(); updateBuffered(); });
+        video.addEventListener("progress", updateBuffered);
+        video.addEventListener("ratechange", () => { if (state.menuOpen) renderMenu(); });
+
+        playBtn.addEventListener("click", (e) => { e.stopPropagation(); togglePlay(); });
+        centerBtn.addEventListener("click", (e) => { e.stopPropagation(); togglePlay(); });
+
+        /* ---------------- সিক বার ---------------- */
+        function updateProgress() {
+            if (liveNow()) { checkBehind(); return; }
+            const d = video.duration;
+            if (!isFinite(d) || d <= 0) return;
+            if (!state.seeking) {
+                const p = (video.currentTime / d) * 100;
+                seekProg.style.width = p + "%";
+                seekThumb.style.left = p + "%";
+                timeText.textContent = fmt(video.currentTime) + " / " + fmt(d);
+            }
+        }
+
+        function updateBuffered() {
+            const d = video.duration;
+            if (!isFinite(d) || !d) return;
+            const b = video.buffered, t = video.currentTime;
+            let end = 0;
+            for (let i = 0; i < b.length; i++) {
+                if (b.start(i) <= t + 0.5 && b.end(i) >= t) end = b.end(i);
+            }
+            seekBuf.style.width = Math.min(100, (end / d) * 100) + "%";
+        }
+
+        function previewSeek(e) {
+            const f = fracFrom(e, seekBar), d = video.duration;
+            seekProg.style.width = f * 100 + "%";
+            seekThumb.style.left = f * 100 + "%";
+            timeText.textContent = fmt(f * d) + " / " + fmt(d);
+        }
+
+        seekBar.addEventListener("pointerdown", (e) => {
+            if (liveNow() || !isFinite(video.duration)) return;
+            state.seeking = true;
+            seekBar.classList.add("dragging");
+            try { seekBar.setPointerCapture(e.pointerId); } catch (_) {}
+            previewSeek(e);
+            showControls();
+        });
+
+        seekBar.addEventListener("pointermove", (e) => {
+            if (liveNow() || !isFinite(video.duration)) return;
+            const f = fracFrom(e, seekBar);
+            seekTip.style.left = f * 100 + "%";
+            seekTip.textContent = fmt(f * video.duration);
+            if (state.seeking) previewSeek(e);
+        });
+
+        function endSeek(e, commit) {
+            if (!state.seeking) return;
+            state.seeking = false;
+            seekBar.classList.remove("dragging");
+            if (commit && isFinite(video.duration)) {
+                video.currentTime = fracFrom(e, seekBar) * video.duration;
+            }
+            updateProgress();
+            scheduleHide();
+        }
+        seekBar.addEventListener("pointerup", (e) => endSeek(e, true));
+        seekBar.addEventListener("pointercancel", (e) => endSeek(e, false));
+
+        /* ---------------- লাইভ ---------------- */
+        function liveEdge() {
+            const p = state.hls && state.hls.liveSyncPosition;
+            if (typeof p === "number" && isFinite(p)) return p;
+            const s = video.seekable;
+            return s.length ? s.end(s.length - 1) : NaN;
+        }
+
+        function checkBehind() {
+            const edge = liveEdge();
+            const behind = isFinite(edge) && edge - video.currentTime > 12;
+            liveBadge.classList.toggle("behind", behind);
+        }
+
+        function goLive() {
+            const edge = liveEdge();
+            if (isFinite(edge)) video.currentTime = edge;
+            const p = video.play();
+            if (p && p.catch) p.catch(() => {});
+            toast("LIVE");
+        }
+
+        liveBadge.addEventListener("click", (e) => { e.stopPropagation(); goLive(); });
+
+        function seekBy(sec) {
+            if (liveNow()) {
+                const s = video.seekable;
+                if (!s.length) return;
+                const max = liveEdge();
+                if (!isFinite(max)) return;
+                video.currentTime = Math.min(max, Math.max(s.start(0), video.currentTime + sec));
+            } else {
+                const d = video.duration;
+                if (!isFinite(d)) return;
+                video.currentTime = Math.min(d, Math.max(0, video.currentTime + sec));
+            }
+            toast(sec > 0 ? "+" + sec + "s ▶▶" : "◀◀ " + sec + "s");
+        }
+
+        /* ---------------- ভলিউম ---------------- */
+        function updateVolumeUI() {
+            const muted = video.muted || video.volume === 0;
+            if (muted) volIcon.className = "fa-solid fa-volume-xmark";
+            else if (video.volume < 0.5) volIcon.className = "fa-solid fa-volume-low";
+            else volIcon.className = "fa-solid fa-volume-high";
+            volSlider.value = muted ? 0 : video.volume;
+        }
+        video.addEventListener("volumechange", updateVolumeUI);
+
+        volSlider.addEventListener("input", (e) => {
+            video.volume = parseFloat(e.target.value);
+            video.muted = video.volume === 0;
+        });
+
+        muteBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (video.muted || video.volume === 0) {
+                video.muted = false;
+                if (video.volume === 0) video.volume = 0.5;
+            } else {
+                video.muted = true;
+            }
+        });
+
+        /* ---------------- অটো-হাইড কন্ট্রোল ---------------- */
+        let hideTimer;
+        function showControls() {
+            wrapper.classList.remove("hide-ui");
+            scheduleHide();
+        }
+        function scheduleHide() {
+            clearTimeout(hideTimer);
+            if (state.mode !== "video" || video.paused || state.menuOpen || state.hoverControls || state.seeking) return;
+            hideTimer = setTimeout(() => wrapper.classList.add("hide-ui"), 3000);
+        }
+
+        let lastX = -1, lastY = -1;
+        wrapper.addEventListener("mousemove", (e) => {
+            if (state.mode !== "video") return;
+            // ক্রোমের নকল mousemove উপেক্ষা করা (কন্ট্রোল লুকানোর পর আবার ফিরে আসা ঠেকাতে)
+            if (e.clientX === lastX && e.clientY === lastY) return;
+            lastX = e.clientX; lastY = e.clientY;
+            showControls();
+        });
+        wrapper.addEventListener("mouseenter", () => { state.hoverWrapper = true; });
+        wrapper.addEventListener("mouseleave", () => {
+            state.hoverWrapper = false;
+            if (state.mode === "video" && !video.paused && !state.menuOpen) wrapper.classList.add("hide-ui");
+        });
+
+        controlsBar.addEventListener("pointerenter", (e) => {
+            if (e.pointerType === "mouse") { state.hoverControls = true; clearTimeout(hideTimer); }
+        });
+        controlsBar.addEventListener("pointerleave", (e) => {
+            if (e.pointerType === "mouse") { state.hoverControls = false; scheduleHide(); }
+        });
+        controlsBar.addEventListener("pointerdown", () => showControls());
+
+        /* ---------------- ভিডিওর উপর ক্লিক / ডাবল-ক্লিক / ডাবল-ট্যাপ ---------------- */
+        let lastTapAt = 0, singleTimer = null, lastType = "mouse";
+        wrapper.addEventListener("pointerdown", (e) => { lastType = e.pointerType || "mouse"; }, true);
+
+        wrapper.addEventListener("click", (e) => {
+            if (state.mode !== "video") return;
+            if (e.target.closest(".custom-controls-bar, .settings-menu, .center-play-overlay, .player-message")) return;
+
+            if (state.menuOpen) { closeMenu(); return; }
+
+            const pos = fracFrom(e, wrapper);
+            const now = Date.now();
+
+            if (now - lastTapAt < DBL) {
+                // ডাবল ক্লিক/ট্যাপ
+                clearTimeout(singleTimer);
+                lastTapAt = lastType === "mouse" ? 0 : now; // টাচে পরপর ট্যাপ করলে সিক চলতেই থাকবে
+                if (lastType === "mouse") {
+                    toggleFullscreen();
+                } else if (pos < 0.35) {
+                    seekBy(-10);
+                } else if (pos > 0.65) {
+                    seekBy(10);
+                } else {
+                    toggleFullscreen();
+                }
+            } else {
+                // সিঙ্গেল ক্লিক/ট্যাপ
+                lastTapAt = now;
+                const wasHidden = wrapper.classList.contains("hide-ui");
+                const type = lastType;
+                singleTimer = setTimeout(() => {
+                    if (type !== "mouse" && wasHidden) showControls(); // ফোনে প্রথম ট্যাপে কন্ট্রোল আসবে
+                    else togglePlay();
+                }, DBL);
+            }
+        });
+
+        /* ---------------- সেটিংস মেনু ---------------- */
+        function levelList() {
+            const hls = state.hls;
+            if (!hls || !hls.levels || hls.levels.length < 2) return [];
+            const arr = hls.levels.map((l, i) => ({ i: i, h: l.height || 0, br: l.bitrate || 0 }));
+            arr.sort((a, b) => (b.h - a.h) || (b.br - a.br));
+            const count = {};
+            arr.forEach((x) => { count[x.h] = (count[x.h] || 0) + 1; });
+            arr.forEach((x) => {
+                x.label = x.h ? x.h + "p" : Math.round(x.br / 1000) + " kbps";
+                if (x.h && count[x.h] > 1) x.label += " (" + Math.round(x.br / 1000) + "k)";
+            });
+            return arr;
+        }
+
+        function qualityLabel() {
+            const hls = state.hls;
+            if (state.level === -1) {
+                const cur = hls && hls.levels && hls.levels[hls.currentLevel];
+                return cur && cur.height ? "Auto (" + cur.height + "p)" : "Auto";
+            }
+            const l = hls.levels[state.level];
+            return l && l.height ? l.height + "p" : "Custom";
+        }
+
+        function speedLabel() { return video.playbackRate === 1 ? "Normal" : video.playbackRate + "x"; }
+
+        function makeRow(label, value, onClick, opts) {
+            opts = opts || {};
+            const b = document.createElement("button");
+            b.type = "button";
+            b.className = "quality-opt" + (opts.active ? " active-quality" : "");
+            const l = document.createElement("span");
+            l.textContent = label;
+            const v = document.createElement("span");
+            v.className = "opt-val";
+            if (value) v.appendChild(document.createTextNode(value));
+            if (opts.arrow) v.insertAdjacentHTML("beforeend", '<i class="fa-solid fa-chevron-right"></i>');
+            if (opts.active) v.insertAdjacentHTML("beforeend", '<i class="fa-solid fa-check"></i>');
+            b.appendChild(l);
+            b.appendChild(v);
+            b.addEventListener("click", (e) => { e.stopPropagation(); onClick(); });
+            return b;
+        }
+
+        function makeHeader(text, back) {
+            const h = document.createElement("div");
+            h.className = "settings-header" + (back ? " settings-back" : "");
+            h.innerHTML = back ? '<i class="fa-solid fa-chevron-left"></i>' : '<i class="fa-solid fa-sliders"></i>';
+            h.appendChild(document.createTextNode(" " + text));
+            if (back) {
+                h.addEventListener("click", (e) => { e.stopPropagation(); state.menuView = "main"; renderMenu(); });
+            }
+            return h;
+        }
+
+        function renderMenu() {
+            menu.innerHTML = "";
+            menu.style.maxHeight = Math.max(110, wrapper.clientHeight - controlsBar.offsetHeight - 16) + "px";
+
+            if (state.menuView === "main") {
+                menu.appendChild(makeHeader("Settings", false));
+                if (levelList().length) {
+                    menu.appendChild(makeRow("Quality", qualityLabel(), () => { state.menuView = "quality"; renderMenu(); }, { arrow: true }));
+                }
+                if (!liveNow()) {
+                    menu.appendChild(makeRow("Playback speed", speedLabel(), () => { state.menuView = "speed"; renderMenu(); }, { arrow: true }));
+                }
+                menu.appendChild(makeRow("Screen", FITS[state.fit].name, () => { state.menuView = "fit"; renderMenu(); }, { arrow: true }));
+            }
+            else if (state.menuView === "quality") {
+                menu.appendChild(makeHeader("Quality", true));
+                menu.appendChild(makeRow("Auto", "", () => {
+                    state.level = -1;
+                    if (state.hls) state.hls.currentLevel = -1;
+                    closeMenu();
+                }, { active: state.level === -1 }));
+                levelList().forEach((lv) => {
+                    menu.appendChild(makeRow(lv.label, "", () => {
+                        state.level = lv.i;
+                        if (state.hls) state.hls.currentLevel = lv.i;
+                        toast("Quality: " + lv.label);
+                        closeMenu();
+                    }, { active: state.level === lv.i }));
+                });
+            }
+            else if (state.menuView === "speed") {
+                menu.appendChild(makeHeader("Playback speed", true));
+                SPEEDS.forEach((r) => {
+                    menu.appendChild(makeRow(r === 1 ? "Normal" : r + "x", "", () => {
+                        video.playbackRate = r;
+                        toast("Speed: " + (r === 1 ? "Normal" : r + "x"));
+                        closeMenu();
+                    }, { active: video.playbackRate === r }));
+                });
+            }
+            else if (state.menuView === "fit") {
+                menu.appendChild(makeHeader("Screen", true));
+                FITS.forEach((f, i) => {
+                    menu.appendChild(makeRow(f.name, "", () => {
+                        setFit(i, true);
+                        closeMenu();
+                    }, { active: state.fit === i }));
+                });
+            }
+        }
+
+        function openMenu() {
+            state.menuOpen = true;
+            state.menuView = "main";
+            menu.classList.add("open");
+            renderMenu();
+            showControls();
+        }
+        function closeMenu() {
+            state.menuOpen = false;
+            menu.classList.remove("open");
+            scheduleHide();
+        }
+
+        settingsBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            state.menuOpen ? closeMenu() : openMenu();
+        });
+        menu.addEventListener("click", (e) => e.stopPropagation());
+        document.addEventListener("click", (e) => {
+            if (state.menuOpen && !e.target.closest("#settingsContainer")) closeMenu();
+        });
+
+        /* ---------------- জুম (Fit / Zoom / Stretch) ---------------- */
+        function setFit(i, announce) {
+            state.fit = i;
+            video.style.objectFit = FITS[i].css;
+            if (announce) toast("Screen: " + FITS[i].name);
+        }
+        zoomBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            setFit((state.fit + 1) % FITS.length, true);
+        });
+
+        /* ---------------- ফুলস্ক্রিন ও রোটেট ---------------- */
+        const hasLock = () => !!(screen.orientation && screen.orientation.lock);
+        const nativeFsEl = () => document.fullscreenElement || document.webkitFullscreenElement || null;
+        const isFs = () => nativeFsEl() === wrapper || state.pseudo;
+        const landscapeVideo = () => !video.videoWidth || video.videoWidth >= video.videoHeight;
+
+        function updateFsUI() {
+            fsIcon.className = isFs() ? "fa-solid fa-compress" : "fa-solid fa-expand";
+        }
+
+        function enterPseudo() {
+            state.pseudo = true;
+            wrapper.classList.add("pseudo-fs");
+            document.body.style.overflow = "hidden";
+            if (isTouch && landscapeVideo() && window.innerHeight > window.innerWidth) {
+                wrapper.classList.add("css-rotated");
+            }
+            updateFsUI();
+        }
+
+        function leavePseudo() {
+            state.pseudo = false;
+            wrapper.classList.remove("pseudo-fs", "css-rotated");
+            document.body.style.overflow = "";
+            updateFsUI();
+        }
+
+        async function enterFs() {
+            if (isTouch && !hasLock()) { enterPseudo(); return; }
+            const req = wrapper.requestFullscreen || wrapper.webkitRequestFullscreen;
+            if (!req) { enterPseudo(); return; }
+            try {
+                await req.call(wrapper);
+            } catch (e) {
+                enterPseudo();
+                return;
+            }
+            updateFsUI();
+            // ফোনে ফুলস্ক্রিনে গেলে ল্যান্ডস্কেপে লক
+            if (isTouch && hasLock() && landscapeVideo()) {
+                try {
+                    await screen.orientation.lock("landscape");
+                } catch (e) {
+                    try { await (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (_) {}
+                    enterPseudo();
+                }
+            }
+        }
+
+        async function exitFs() {
+            if (state.pseudo) leavePseudo();
+            if (nativeFsEl()) {
+                try { await (document.exitFullscreen || document.webkitExitFullscreen).call(document); } catch (e) {}
+            }
+            try { if (hasLock()) screen.orientation.unlock(); } catch (e) {}
+            updateFsUI();
+        }
+
+        function toggleFullscreen() { isFs() ? exitFs() : enterFs(); }
+
+        ["fullscreenchange", "webkitfullscreenchange"].forEach((ev) =>
+            document.addEventListener(ev, () => {
+                if (!nativeFsEl() && !state.pseudo) {
+                    try { if (hasLock()) screen.orientation.unlock(); } catch (e) {}
+                }
+                updateFsUI();
+            })
+        );
+
+        // ফোন ঘুরালে (ফিজিক্যালি) CSS রোটেশন বন্ধ হবে
+        window.addEventListener("resize", () => {
+            if (state.pseudo && wrapper.classList.contains("css-rotated") && window.innerWidth > window.innerHeight) {
+                wrapper.classList.remove("css-rotated");
+            }
+        });
+
+        async function rotateAction() {
+            if (!isFs()) { await enterFs(); return; }
+            if (state.pseudo) {
+                wrapper.classList.toggle("css-rotated");
+                return;
+            }
+            const o = screen.orientation;
+            if (!o || !o.lock) return;
+            const land = o.type.indexOf("landscape") === 0;
+            try { await o.lock(land ? "portrait" : "landscape"); } catch (e) {}
+        }
+
+        fsBtn.addEventListener("click", (e) => { e.stopPropagation(); toggleFullscreen(); });
+        rotateBtn.addEventListener("click", (e) => { e.stopPropagation(); rotateAction(); });
+
+        /* ---------------- কিবোর্ড শর্টকাট ---------------- */
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && state.pseudo) { leavePseudo(); return; }
+            if (state.mode !== "video") return;
+            if (!(isFs() || state.hoverWrapper)) return; // পেজের স্ক্রলিং যেন নষ্ট না হয়
+            const t = e.target;
+            if (t && ((t.matches && t.matches("input, textarea, select")) || t.isContentEditable)) return;
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
+            const onBtn = t && t.closest && t.closest("button, a");
+
+            switch (e.key) {
+                case " ":
+                    if (onBtn) return;
+                    e.preventDefault(); togglePlay(); break;
+                case "k": case "K": togglePlay(); break;
+                case "ArrowLeft": e.preventDefault(); seekBy(-5); break;
+                case "ArrowRight": e.preventDefault(); seekBy(5); break;
+                case "j": case "J": seekBy(-10); break;
+                case "l": case "L": seekBy(10); break;
+                case "ArrowUp": e.preventDefault(); video.muted = false; video.volume = Math.min(1, video.volume + 0.05); break;
+                case "ArrowDown": e.preventDefault(); video.volume = Math.max(0, video.volume - 0.05); break;
+                case "m": case "M": muteBtn.click(); break;
+                case "f": case "F": toggleFullscreen(); break;
+                default: return;
+            }
+            showControls();
+        });
+
+        /* ---------------- এরর ---------------- */
+        function showError(msg) {
+            msgText.textContent = msg;
+            msgBox.classList.remove("hidden");
+            spinner.classList.add("hidden");
+        }
+        retryBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            msgBox.classList.add("hidden");
+            document.dispatchEvent(new CustomEvent("player-retry"));
+        });
+
+        /* ---------------- বাইরে থেকে ব্যবহারের API ---------------- */
+        window.PlayerUI = {
+            setMode: function (m) {
+                state.mode = m;
+                if (m === "embed") {
+                    wrapper.classList.add("mode-embed");
+                    wrapper.classList.remove("hide-ui");
+                    iframeEl.classList.remove("hidden");
+                    video.classList.add("hidden");
+                    closeMenu();
+                } else {
+                    wrapper.classList.remove("mode-embed");
+                    iframeEl.classList.add("hidden");
+                    video.classList.remove("hidden");
+                }
+            },
+            setLive: function (v) {
+                state.live = !!v;
+                applyLiveUI();
+            },
+            reset: function () {
+                if (window.activeHls) { try { window.activeHls.destroy(); } catch (e) {} window.activeHls = null; }
+                state.hls = null;
+                state.level = -1;
+                try { video.pause(); } catch (e) {}
+                video.removeAttribute("src");
+                video.load();
+                video.playbackRate = 1;
+                iframeEl.src = "about:blank";
+                seekProg.style.width = "0%";
+                seekBuf.style.width = "0%";
+                seekThumb.style.left = "0%";
+                timeText.textContent = "0:00 / 0:00";
+                msgBox.classList.add("hidden");
+                spinner.classList.add("hidden");
+                liveBadge.classList.remove("behind");
+                closeMenu();
+            },
+            attachHls: function (hls) {
+                state.hls = hls;
+                state.level = -1;
+                hls.on(Hls.Events.LEVEL_SWITCHED, function () { if (state.menuOpen) renderMenu(); });
+                hls.on(Hls.Events.MANIFEST_PARSED, function () { if (state.menuOpen) renderMenu(); });
+            },
+            autoplay: async function () {
+                try {
+                    await video.play();
+                } catch (e) {
+                    // ব্রাউজার সাউন্ডসহ অটোপ্লে আটকালে মিউট করে চালানো হবে
+                    try {
+                        video.muted = true;
+                        await video.play();
+                        toast("Muted — tap the speaker to unmute");
+                    } catch (e2) { /* ইউজার প্লে চাপলে চলবে */ }
+                }
+            },
+            loading: function (v) { spinner.classList.toggle("hidden", !v); },
+            error: showError,
+            toast: toast
+        };
+
+        // শুরুর UI
+        updateVolumeUI();
+        setFit(0, false);
+        updateFsUI();
+    })();
+    </script>
+
+    <!-- ========================================================= -->
+    <!-- 🌟 ২. ফায়ারস্টোর ও স্ট্রিম লোডিং ইঞ্জিন 🌟 -->
+    <!-- ========================================================= -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { 
+            getFirestore, doc, getDoc, collection, getDocs, 
+            addDoc, updateDoc, arrayUnion, arrayRemove, onSnapshot, query, orderBy, serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // ফায়ারবেস কনফিগ
+        const firebaseConfig = {
+            apiKey: "AIzaSyDWugLg2G3Bvo5q6vPxIdGUUdKH1W0NenE",
+            authDomain: "lego-sight.firebaseapp.com",
+            projectId: "lego-sight",
+            storageBucket: "lego-sight.firebasestorage.app",
+            messagingSenderId: "417663931445",
+            appId: "1:417663931445:web:270748ca31cb2912cb4d7c",
+            measurementId: "G-KREWWFSZZ2"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // DOM Elements
+        const ytPlayer = document.getElementById("ytPlayer");
+        const videoPlayer = document.getElementById("videoPlayer");
+        const titleEl = document.getElementById("currentVideoTitle");
+        const catEl = document.getElementById("videoCategory");
+        const statusBadge = document.getElementById("statusBadge");
+
+        const likeBtn = document.getElementById("likeBtn");
+        const likeCount = document.getElementById("likeCount");
+        const subscribeBtn = document.getElementById("subscribeBtn");
+        const subBtnText = document.getElementById("subBtnText");
+
+        const commentInput = document.getElementById("commentInput");
+        const submitCommentBtn = document.getElementById("submitCommentBtn");
+        const commentsList = document.getElementById("commentsList");
+        const commentCount = document.getElementById("commentCount");
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const videoId = urlParams.get('id');       
+        const directSrc = urlParams.get('src');   
+        const ytParam = urlParams.get('yt');
+        // src দিয়ে সরাসরি লিংক খুললে &live=1 দিলে লাইভ হিসেবে চলবে
+        const liveParam = ['1', 'true'].includes((urlParams.get('live') || '').toLowerCase());
+
+        let currentUser = null;
+        let currentVideoData = null;
+
+        // গ্লোবাল HLS ইন্সট্যান্স
+        window.activeHls = null;
+
+        // HTML ইনজেকশন থেকে বাঁচার জন্য
+        const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[c]));
+
+        onAuthStateChanged(auth, (user) => {
+            currentUser = user;
+            updateLikeButtonUI();
+        });
+
+        // 🌟 লগইন না থাকলে auth-modal.js এর পপআপ খুলবে 🌟
+        function triggerAuthModal() {
+            const modal = document.getElementById("loginModal");
+            if (modal) modal.classList.add("active");
+        }
+
+        function getYouTubeId(url) {
+            if (!url) return null;
+            if (url.length === 11 && !url.includes('/') && !url.includes('.')) return url;
+            if (!/youtu\.?be/i.test(url)) return null; // শুধু ইউটিউব লিংক হলেই
+            const match = url.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+            return (match && match[2].length === 11) ? match[2] : null;
+        }
+
+        function isHlsSource(url) {
+            if (!url) return false;
+            return /\.m3u8(\?|#|$)/i.test(url) || /m3u8/i.test(url);
+        }
+
+        function isTwitchSource(url) {
+            return /twitch\.tv/i.test(url);
+        }
+
+        // =========================================================
+        // 🎬 ভিডিও লোড ফাংশন (লাইভ চেক ও রেজোলিউশন সহ)
+        // =========================================================
+        let lastPlayArgs = null;
+        let playToken = 0; // প্রতিটা নতুন playVideo() কলে বাড়বে, যাতে পুরনো কাস্কেড আর চলতে না পারে
+
+        function playVideo(videoSourceUrl, isLiveMatch = false, videoTitle = "Match Video", category = "Sports") {
+            let src = (videoSourceUrl || "").trim();
+
+            // 🌟 mixed-content ফিক্স: পেজ HTTPS হলে http:// লিংককেও https:// করে চেষ্টা করবে
+            if (src && location.protocol === "https:" && src.startsWith("http://")) {
+                src = "https://" + src.slice(7);
+            }
+
+            lastPlayArgs = [src, isLiveMatch, videoTitle, category];
+            const myToken = ++playToken;
+
+            titleEl.innerText = videoTitle;
+            catEl.innerText = category;
+
+            // 🌟 লাইভ হলে কেবল LIVE দেখাবে, অন্যথায় কোনো লাইভ দেখাবে না 🌟
+            if (isLiveMatch === true) {
+                statusBadge.className = "live-tag";
+                statusBadge.innerText = "🔴 LIVE";
+            } else {
+                statusBadge.className = "vod-tag";
+                statusBadge.innerText = "🎬 Match Video";
+            }
+
+            PlayerUI.reset();
+            PlayerUI.setLive(isLiveMatch === true); // কন্ট্রোলবারের LIVE ব্যাজ ও সিক বার এটাই ঠিক করে
+
+            if (!src) {
+                PlayerUI.setMode("video");
+                PlayerUI.error("No video source found for this match.");
+                return;
+            }
+
+            const ytId = getYouTubeId(src);
+
+            // ১. Kick.com / Twitch — এদের নিজস্ব প্লেয়ার ফ্রেম আছে, তাই সরাসরি এমবেড
+            if (src.includes("kick.com")) {
+                PlayerUI.setMode("embed");
+                ytPlayer.src = src;
+            }
+            else if (isTwitchSource(src)) {
+                PlayerUI.setMode("embed");
+                ytPlayer.src = src.includes("player.twitch.tv")
+                    ? src
+                    : `https://player.twitch.tv/?channel=${encodeURIComponent(src.split("twitch.tv/")[1] || "")}&parent=${location.hostname}&autoplay=true`;
+            }
+            // ২. ইউটিউব লিংক
+            else if (ytId) {
+                PlayerUI.setMode("embed");
+                ytPlayer.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&rel=0&playsinline=1`;
+            }
+            // ৩. বাকি সব লিংক (m3u8, mp4, বা যেকোনো ফরম্যাট) — একের পর এক নিজে থেকে চেষ্টা করে চালাবে
+            else {
+                smartLoad(src, myToken);
+            }
+        }
+
+        // 🌟 ইউনিভার্সাল অটো-প্লে কাস্কেড 🌟
+        // যেকোনো লিংক দিলে ধাপে ধাপে নিজে থেকে চেষ্টা করবে:
+        // ধাপ ১: HLS (hls.js) হিসেবে চালানোর চেষ্টা
+        // ধাপ ২: সরাসরি <video> (mp4/webm/native HLS) হিসেবে চালানোর চেষ্টা
+        // ধাপ ৩: iframe এমবেড হিসেবে চালানোর চেষ্টা (কিছু লিংক আসলে প্লেয়ার পেজ হতে পারে)
+        // কোনোটাই কাজ না করলে তবেই আসল কারণসহ এরর দেখাবে
+        function smartLoad(src, myToken) {
+            PlayerUI.setMode("video");
+            PlayerUI.loading(true);
+
+            waitForHls(src, 0, function (hlsReady) {
+                if (myToken !== playToken) return; // ততক্ষণে আরেকটা ভিডিও লোড শুরু হয়ে গেছে
+
+                if (hlsReady) {
+                    tryHls(src, myToken, function (ok, reason) {
+                        if (myToken !== playToken) return;
+                        if (ok) return;
+                        console.warn("HLS attempt failed → trying native <video>:", reason);
+                        tryNativeVideo(src, myToken, function (ok2, reason2) {
+                            if (myToken !== playToken) return;
+                            if (ok2) return;
+                            console.warn("Native <video> attempt failed → trying iframe embed:", reason2);
+                            tryIframeEmbed(src, myToken);
+                        });
+                    });
+                } else {
+                    // hls.js লোডই হলো না (নেট স্লো/ব্লকড) — সরাসরি নেটিভ ভিডিও দিয়ে চেষ্টা
+                    tryNativeVideo(src, myToken, function (ok2, reason2) {
+                        if (myToken !== playToken) return;
+                        if (ok2) return;
+                        console.warn("Native <video> attempt failed → trying iframe embed:", reason2);
+                        tryIframeEmbed(src, myToken);
+                    });
+                }
+            });
+        }
+
+        // hls.js CDN থেকে লোড হতে দেরি হলে সর্বোচ্চ ৫ সেকেন্ড অপেক্ষা করবে (রেস কন্ডিশন ফিক্স)
+        function waitForHls(src, waited, cb) {
+            if (window.Hls && Hls.isSupported()) { cb(true); return; }
+            if (window.Hls && !Hls.isSupported()) { cb(false); return; } // এই ব্রাউজার hls.js সাপোর্ট করে না (যেমন Safari — নেটিভ HLS ব্যবহার হবে)
+            if (waited > 5000) { cb(false); return; }
+            setTimeout(() => waitForHls(src, waited + 100, cb), 100);
+        }
+
+        function tryHls(src, myToken, done) {
+            let settled = false;
+            const finish = (ok, reason) => {
+                if (settled) return;
+                settled = true;
+                done(ok, reason);
+            };
+
+            const hls = new Hls({
+                enableWorker: true,
+                lowLatencyMode: true,
+                backBufferLength: 90,
+                manifestLoadingMaxRetry: 4,
+                manifestLoadingRetryDelay: 700,
+                levelLoadingMaxRetry: 4,
+                fragLoadingMaxRetry: 6,
+                xhrSetup: function (xhr) {
+                    xhr.withCredentials = false; // পাবলিক CDN/স্ট্রিমের জন্য ডিফল্ট
+                }
+            });
+
+            // অনেকক্ষণ কিছু না হলে (মৃত/হ্যাং লিংক) পরের ধাপে চলে যাবে
+            const hangTimer = setTimeout(() => {
+                hls.destroy();
+                if (window.activeHls === hls) window.activeHls = null;
+                finish(false, "timeout");
+            }, 9000);
+
+            hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                clearTimeout(hangTimer);
+                window.activeHls = hls;
+                PlayerUI.attachHls(hls);
+                PlayerUI.autoplay();
+                finish(true);
+            });
+
+            let netRetries = 0, mediaRetries = 0;
+            hls.on(Hls.Events.ERROR, function (event, data) {
+                if (!data.fatal) return;
+                console.warn("HLS error:", data.type, data.details);
+
+                if (data.type === Hls.ErrorTypes.NETWORK_ERROR && netRetries++ < 3) {
+                    setTimeout(() => hls.startLoad(), 600);
+                    return;
+                }
+                if (data.type === Hls.ErrorTypes.MEDIA_ERROR && mediaRetries++ < 3) {
+                    hls.recoverMediaError();
+                    return;
+                }
+
+                clearTimeout(hangTimer);
+                hls.destroy();
+                if (window.activeHls === hls) window.activeHls = null;
+                finish(false, data.details || data.type);
+            });
+
+            hls.loadSource(src);
+            hls.attachMedia(videoPlayer);
+        }
+
+        function tryNativeVideo(src, myToken, done) {
+            let settled = false;
+            const finish = (ok, reason) => {
+                if (settled) return;
+                settled = true;
+                cleanup();
+                done(ok, reason);
+            };
+            const onOk = () => finish(true);
+            const onErr = () => finish(false, "native-error");
+            function cleanup() {
+                videoPlayer.removeEventListener("loadedmetadata", onOk);
+                videoPlayer.removeEventListener("error", onErr);
+                clearTimeout(hangTimer);
+            }
+
+            const hangTimer = setTimeout(() => finish(false, "timeout"), 8000);
+
+            videoPlayer.addEventListener("loadedmetadata", onOk, { once: true });
+            videoPlayer.addEventListener("error", onErr, { once: true });
+
+            videoPlayer.src = src;
+            videoPlayer.load();
+            PlayerUI.autoplay();
+            // autoplay() নিজেই play() ট্রাই করবে; loadedmetadata আসলেই বোঝা যাবে লিংকটা আসলে চলছে
+        }
+
+        function tryIframeEmbed(src, myToken) {
+            // ক্রস-অরিজিন iframe লোড সফল হলো কিনা তা জাভাস্ক্রিপ্ট দিয়ে নিশ্চিতভাবে জানা যায় না,
+            // তাই এটাই শেষ চেষ্টা হিসেবে ব্যবহার হয় — ধরে নেওয়া হয় এটা প্লেয়ার/ওয়েবপেজ লিংক
+            PlayerUI.setMode("embed");
+            ytPlayer.src = src;
+            PlayerUI.loading(false);
+
+            // কিছুক্ষণ পর দেখা হবে iframe আদৌ কিছু লোড করতে পেরেছে কিনা (best-effort)
+            setTimeout(() => {
+                if (myToken !== playToken) return;
+                let blocked = false;
+                try {
+                    // about:blank ছাড়া অন্য কিছু হলেও cross-origin হলে এটা এরর ছুঁড়বে — সেটাই স্বাভাবিক ও প্রত্যাশিত
+                    blocked = !ytPlayer.contentWindow;
+                } catch (e) { /* cross-origin — এটাই সাধারণত ঠিকঠাক এমবেড হওয়ার লক্ষণ */ }
+                if (blocked) {
+                    PlayerUI.setMode("video");
+                    PlayerUI.error("এই লিংকটি চালানো গেল না। লিংকটি সঠিক কিনা, স্ট্রিম চালু আছে কিনা এবং স্ট্রিম সার্ভার CORS/embedding অনুমতি দিচ্ছে কিনা যাচাই করুন।");
+                }
+            }, 2500);
+        }
+
+        // এরর ওভারলের Retry বাটন
+        document.addEventListener("player-retry", () => {
+            if (lastPlayArgs) playVideo(...lastPlayArgs);
+        });
+
+        // ফায়ারস্টোর থেকে ডাটা লোড
+        let loadedKey = null;
+        let loadedCategory = null;
+
+        if (videoId) {
+            onSnapshot(doc(db, "videos", videoId), (docSnap) => {
+                if (!docSnap.exists()) {
+                    titleEl.innerText = "Video not found";
+                    PlayerUI.error("This video is not available.");
+                    return;
+                }
+
+                currentVideoData = docSnap.data();
+                const isLive = currentVideoData.isLive === true; // 🌟 আসল লাইভ স্ট্যাটাস 🌟
+
+                // 🌟 শুধু লিংক বা লাইভ স্ট্যাটাস বদলালেই প্লেয়ার রিলোড হবে।
+                // (আগে লাইক দিলেই ভিডিও নতুন করে শুরু হয়ে যেত — এখন আর হবে না)
+                const key = `${currentVideoData.videoLink}|${isLive}`;
+                if (key !== loadedKey) {
+                    loadedKey = key;
+                    playVideo(
+                        currentVideoData.videoLink,
+                        isLive,
+                        currentVideoData.title,
+                        currentVideoData.category
+                    );
+                } else {
+                    titleEl.innerText = currentVideoData.title || "";
+                    catEl.innerText = currentVideoData.category || "";
+                }
+
+                const likesArr = currentVideoData.likedBy || [];
+                likeCount.innerText = likesArr.length;
+                updateLikeButtonUI();
+
+                if (currentVideoData.category !== loadedCategory) {
+                    loadedCategory = currentVideoData.category;
+                    loadRelatedVideos(currentVideoData.category, videoId);
+                }
+            });
+
+            listenToComments(videoId);
+        } else {
+            const activeUrl = ytParam ? `https://www.youtube.com/watch?v=${ytParam}` : directSrc;
+            playVideo(activeUrl, liveParam, urlParams.get('title') || "Match Video", urlParams.get('cat') || "Football");
+        }
+
+        function updateLikeButtonUI() {
+            if (currentVideoData && currentUser) {
+                const likedBy = currentVideoData.likedBy || [];
+                likeBtn.classList.toggle("active", likedBy.includes(currentUser.uid));
+            } else {
+                likeBtn.classList.remove("active");
+            }
+        }
+
+        likeBtn.onclick = () => {
+            if (!currentUser) { triggerAuthModal(); return; }
+            if (!videoId || !currentVideoData) return;
+
+            const videoRef = doc(db, "videos", videoId);
+            const likedBy = currentVideoData.likedBy || [];
+
+            if (likedBy.includes(currentUser.uid)) {
+                updateDoc(videoRef, { likedBy: arrayRemove(currentUser.uid) });
+            } else {
+                updateDoc(videoRef, { likedBy: arrayUnion(currentUser.uid) });
+            }
+        };
+
+        let isSubscribed = false;
+        subscribeBtn.onclick = () => {
+            if (!currentUser) { triggerAuthModal(); return; }
+            isSubscribed = !isSubscribed;
+            subscribeBtn.classList.toggle("subscribed", isSubscribed);
+            subBtnText.innerText = isSubscribed ? "Subscribed" : "Subscribe";
+        };
+
+        function listenToComments(vId) {
+            const q = query(collection(db, "videos", vId, "comments"), orderBy("createdAt", "desc"));
+            onSnapshot(q, (snapshot) => {
+                commentCount.innerText = snapshot.size;
+                commentsList.innerHTML = "";
+
+                if (snapshot.empty) {
+                    commentsList.innerHTML = `<p style="color: #666; font-size: 13px;">No comments yet.</p>`;
+                    return;
+                }
+
+                snapshot.forEach((docItem) => {
+                    const data = docItem.data();
+                    const commentDiv = document.createElement("div");
+                    commentDiv.className = "single-comment";
+                    commentDiv.innerHTML = `
+                        <i class="fa-solid fa-circle-user" style="color: #ff0000; font-size: 22px;"></i>
+                        <div>
+                            <h5>${esc(data.userName)}</h5>
+                            <p>${esc(data.text)}</p>
+                        </div>
+                    `;
+                    commentsList.appendChild(commentDiv);
+                });
+            });
+        }
+
+        submitCommentBtn.onclick = () => {
+            if (!currentUser) { triggerAuthModal(); return; }
+            const text = commentInput.value.trim();
+            if (!text || !videoId) return;
+
+            addDoc(collection(db, "videos", videoId, "comments"), {
+                userId: currentUser.uid,
+                userName: currentUser.displayName || currentUser.email.split("@")[0],
+                text: text,
+                createdAt: serverTimestamp()
+            });
+
+            commentInput.value = "";
+        };
+
+        async function loadRelatedVideos(category, currentId) {
+            const relatedContainer = document.getElementById("relatedVideosList");
+            try {
+                const querySnapshot = await getDocs(collection(db, "videos"));
+                let html = "";
+                let count = 0;
+
+                querySnapshot.forEach((docItem) => {
+                    const video = docItem.data();
+                    if (docItem.id !== currentId && video.category === category) {
+                        count++;
+                        // 🌟 সম্পর্কিত ভিডিওতে লাইভ হলে তবেই লাইভ ব্যাজ দেখাবে 🌟
+                        const badgeHTML = (video.isLive === true) 
+                            ? `<span class="live-tag" style="position: absolute; top: 6px; left: 6px;">🔴 LIVE</span>` 
+                            : ``;
+
+                        html += `
+                            <a href="watch.html?id=${encodeURIComponent(docItem.id)}" class="related-card" style="position: relative;">
+                                <img src="${esc(video.thumbnailUrl || 'logo.png')}" alt="Thumbnail">
+                                ${badgeHTML}
+                                <div class="related-info">
+                                    <h4>${esc(video.title)}</h4>
+                                    <span>${esc(video.category)} • ${video.isLive === true ? 'Live Match' : 'Match Video'}</span>
+                                </div>
+                            </a>
+                        `;
+                    }
+                });
+
+                relatedContainer.innerHTML = count === 0
+                    ? `<p style="color: #666; font-size: 13px;">No other matches found.</p>`
+                    : html;
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        document.getElementById("shareBtn").onclick = async () => {
+            try {
+                await navigator.clipboard.writeText(window.location.href);
+                alert("Match link copied to clipboard!");
+            } catch (e) {
+                window.prompt("Copy this link:", window.location.href);
+            }
+        };
+    </script>
+
+    <!-- মোবাইল মেনু টগল -->
+    <script>
+        const menuBtn = document.getElementById("mobileMenuBtn");
+        const navLinks = document.getElementById("navLinks");
+        if (menuBtn && navLinks) {
+            menuBtn.onclick = function(e) {
+                e.stopPropagation();
+                navLinks.classList.toggle("active");
+                menuBtn.classList.toggle("open");
+            };
+        }
+    </script>
+
+    <!-- ========================================================= -->
+    <!-- 🔒 বেসিক প্রোটেকশন: রাইট-ক্লিক ও F12/Inspect শর্টকাট বন্ধ   -->
+    <!-- (নোট: এটি ১০০% ফুলপ্রুফ নয়, শুধু সাধারণ ইউজারদের জন্য বাধা) -->
+    <!-- ========================================================= -->
+    <script>
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener("keydown", function (e) {
+            const key = (e.key || "").toUpperCase();
+            // F12
+            if (key === "F12") { e.preventDefault(); return false; }
+            // Ctrl+Shift+I / J / C (DevTools, Console, Inspect Element)
+            if (e.ctrlKey && e.shiftKey && ["I", "J", "C"].includes(key)) {
+                e.preventDefault();
+                return false;
+            }
+            // Ctrl+U (View Source)
+            if (e.ctrlKey && key === "U") {
+                e.preventDefault();
+                return false;
+            }
+            // Cmd+Opt+I / J / C (Mac Safari/Chrome)
+            if (e.metaKey && e.altKey && ["I", "J", "C"].includes(key)) {
+                e.preventDefault();
+                return false;
+            }
+        });
+    </script>
+</body>
+</html>
