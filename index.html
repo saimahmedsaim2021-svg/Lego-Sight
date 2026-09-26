@@ -304,6 +304,7 @@
         }
         .banner-play-btn:hover{ background: var(--accent-blue); transform: translateY(-2px); }
         .banner-play-btn i{ font-size:13px; }
+        .banner-play-btn.is-disabled{ opacity:0.5; pointer-events:none; cursor:default; }
 
         /* ---------- Search ---------- */
         /* সার্চ বক্সটি যেন পেজের মাঝখানে ভাসমান না থেকে ব্যানার/ক্যাটাগরির মতোই বাম দিক থেকে শুরু হয় */
@@ -998,6 +999,109 @@
             /* ---------- Online / offline toast (useful for a live-streaming site) ---------- */
             window.addEventListener("offline", () => showToast("ইন্টারনেট সংযোগ বিচ্ছিন্ন হয়েছে", "warn"));
             window.addEventListener("online", () => showToast("ইন্টারনেট সংযোগ ফিরে এসেছে", "ok"));
+        });
+    </script>
+
+    <!-- ========================================================= -->
+    <!-- 🌟 ব্যানারের "Watch Now" বাটনকে watch.html-এর সাথে সংযুক্ত করা 🌟 -->
+    <!-- আগে বাটনটির href="#" ছিল, তাই ক্লিক করলে কিছুই হতো না।     -->
+    <!-- এখন এটি Firestore থেকে ফিচার্ড ভিডিও (আগে লাইভ, না থাকলে   -->
+    <!-- সবচেয়ে নতুন যেকোনো ভিডিও) খুঁজে বের করে watch.html?id=...  -->
+    <!-- এ পাঠাবে — ফলে ভিডিওটি সরাসরি বাইরের লিংকে না গিয়ে         -->
+    <!-- আমাদের নিজের সাইটের প্লেয়ারেই (watch.html) চলবে/দেখাবে।    -->
+    <!-- ========================================================= -->
+    <script type="module">
+        import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import {
+            getFirestore, collection, getDocs, query, where, limit
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDWugLg2G3Bvo5q6vPxIdGUUdKH1W0NenE",
+            authDomain: "lego-sight.firebaseapp.com",
+            projectId: "lego-sight",
+            storageBucket: "lego-sight.firebasestorage.app",
+            messagingSenderId: "417663931445",
+            appId: "1:417663931445:web:270748ca31cb2912cb4d7c",
+            measurementId: "G-KREWWFSZZ2"
+        };
+
+        // script.js হয়তো আগেই এই একই কনফিগ দিয়ে app ইনিশিয়ালাইজ করে থাকতে পারে,
+        // তাই দুইবার initializeApp() কল করলে এরর হবে — getApps() দিয়ে চেক করা হলো
+        const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function wireBannerWatchButton() {
+            const btn = document.getElementById("bannerWatchBtn");
+            const bannerBg = document.getElementById("bannerBackground");
+            if (!btn) return;
+
+            try {
+                // ১. আগে লাইভ ভিডিও খোঁজা হবে
+                let snap = await getDocs(query(collection(db, "videos"), where("isLive", "==", true), limit(1)));
+                let docSnap = snap.docs[0];
+
+                // ২. লাইভ কিছু না থাকলে, যেকোনো একটা ভিডিও (ফিচার করার জন্য)
+                if (!docSnap) {
+                    snap = await getDocs(query(collection(db, "videos"), limit(1)));
+                    docSnap = snap.docs[0];
+                }
+
+                if (docSnap) {
+                    const data = docSnap.data();
+                    // 🌟 এটাই আসল ফিক্স: সরাসরি স্ট্রিম লিংকে না গিয়ে my.html-এ যাবে,
+                    // যাতে ভিডিওটা আমাদের নিজস্ব প্লেয়ারেই (এই সাইটেই) চলে
+                    btn.href = "my.html?id=" + encodeURIComponent(docSnap.id);
+                    btn.classList.remove("is-disabled");
+
+                    if (data.thumbnailUrl && bannerBg) {
+                        bannerBg.style.backgroundImage =
+                            "linear-gradient(180deg, rgba(10,13,18,0.15) 0%, rgba(10,13,18,0.95) 88%), " +
+                            "radial-gradient(circle at 15% 20%, rgba(0,153,255,0.35), transparent 45%), " +
+                            "url('" + data.thumbnailUrl.replace(/'/g, "\\'") + "')";
+                    }
+                } else {
+                    // কোনো ভিডিও-ই নেই — বাটন নিষ্ক্রিয় রাখা হলো যাতে ফাঁকা "#" এ ক্লিক না হয়
+                    btn.removeAttribute("href");
+                    btn.classList.add("is-disabled");
+                    if (window.showToast) window.showToast("এখনো কোনো ভিডিও যোগ করা হয়নি", "warn");
+                }
+            } catch (err) {
+                console.error("Banner watch button setup failed:", err);
+            }
+        }
+
+        if (document.readyState === "loading") {
+            document.addEventListener("DOMContentLoaded", wireBannerWatchButton);
+        } else {
+            wireBannerWatchButton();
+        }
+    </script>
+
+    <!-- ========================================================= -->
+    <!-- 🔒 বেসিক প্রোটেকশন: রাইট-ক্লিক ও F12/Inspect শর্টকাট বন্ধ   -->
+    <!-- (নোট: এটি ১০০% ফুলপ্রুফ নয়, শুধু সাধারণ ইউজারদের জন্য বাধা) -->
+    <!-- ========================================================= -->
+    <script>
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+        });
+
+        document.addEventListener("keydown", function (e) {
+            const key = (e.key || "").toUpperCase();
+            if (key === "F12") { e.preventDefault(); return false; }
+            if (e.ctrlKey && e.shiftKey && ["I", "J", "C"].includes(key)) {
+                e.preventDefault();
+                return false;
+            }
+            if (e.ctrlKey && key === "U") {
+                e.preventDefault();
+                return false;
+            }
+            if (e.metaKey && e.altKey && ["I", "J", "C"].includes(key)) {
+                e.preventDefault();
+                return false;
+            }
         });
     </script>
 </body>
