@@ -88,41 +88,13 @@
             display: none !important;
         }
 
-        /* ইউটিউব/কিক এমবেড মোডে প্লে/পজ, ভলিউম, সিক বার, সেটিংস (কোয়ালিটি) কিছুই
-           দেখানো হয় না — কারণ ওসব YouTube/Kick-এর নিজস্ব প্লেয়ারের ভেতরের জিনিস,
-           বাইরে থেকে আমাদের নিয়ন্ত্রণ করার উপায় নেই। কিন্তু রোটেট আর ফুলস্ক্রিন
-           শুধু আমাদের নিজের প্লেয়ার-বক্সটাকে ঘোরায়/বড় করে, তাই এই দুইটা এখানেও
-           কাজ করে — ছোট একটা প্যানেলে উপরের-ডান কোণে দেখানো হচ্ছে, যাতে
-           YouTube/Kick-এর নিজস্ব নিচের কন্ট্রোল বার ব্লক না হয়ে যায়। */
+        /* ইউটিউব/কিক এমবেড মোডে আমাদের কন্ট্রোল লুকানো থাকবে (ওদের নিজস্ব কন্ট্রোল আছে) */
         .video-player-wrapper.mode-embed { cursor: default; }
+        .video-player-wrapper.mode-embed .custom-controls-bar,
         .video-player-wrapper.mode-embed .center-play-overlay,
         .video-player-wrapper.mode-embed .player-spinner,
         .video-player-wrapper.mode-embed .player-toast {
             display: none !important;
-        }
-        .video-player-wrapper.mode-embed .custom-controls-bar {
-            background: transparent;
-            padding: 0;
-            pointer-events: none; /* নিচের অংশ দিয়ে ক্লিক সরাসরি iframe-এ চলে যাবে */
-        }
-        .video-player-wrapper.mode-embed .seek-row,
-        .video-player-wrapper.mode-embed .controls-left,
-        .video-player-wrapper.mode-embed #settingsContainer,
-        .video-player-wrapper.mode-embed #zoomBtn {
-            display: none !important;
-        }
-        .video-player-wrapper.mode-embed .controls-row {
-            justify-content: flex-end;
-        }
-        .video-player-wrapper.mode-embed .controls-right {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            background: rgba(0, 0, 0, 0.55);
-            border-radius: 20px;
-            padding: 6px 12px;
-            pointer-events: auto; /* শুধু এই ছোট প্যানেলটাই ক্লিকযোগ্য */
-            gap: 12px;
         }
 
         /* মাঝখানের বড় প্লে বাটন */
